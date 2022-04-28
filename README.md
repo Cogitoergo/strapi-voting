@@ -10,17 +10,17 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 
 ## ⏳ Installation
 
-(Use **yarn** to install this plugin within your Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
+(Use **npm** to install this plugin within your Strapi project (recommended). [Install npm with these docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).)
 
 ```bash
-yarn add strapi-plugin-voting@latest
+npm install strapi-plugin-voting@latest
 ```
 
 After successful installation you've to build a fresh package that includes  plugin UI. To achieve that simply use:
 
 ```bash
-yarn build
-yarn develop
+npm run build
+npm run develop
 ```
 
 or just run Strapi in the development mode with `--watch-admin` option:
