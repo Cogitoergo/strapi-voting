@@ -35,7 +35,7 @@ The **Voting** plugin should appear in the **Plugins** section of Strapi sidebar
 
 ### Vote
 
-`POST <host>/api/strapi-voting/api::<collection name>.<content type name>:<entity id>`
+`POST <host>/strapi-voting/api::<collection name>.<content type name>:<entity id>`
 
 Vote for a specific entity of a content type, for example `Page` with `ID: 1`.
 
