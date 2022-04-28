@@ -48,7 +48,7 @@ Vote for a specific entity of a content type, for example `Page` with `ID: 1`.
   {
     "createdAt": "2022-04-26T12:50:49.954Z",
     "id": 1,
-    "publishedAt: "2022-04-26T12:50:50.600Z",
+    "publishedAt": "2022-04-26T12:50:50.600Z",
     "title": "Obuolių pyragas",
     "updatedAt": "2022-04-28T12:17:45.893Z",
     "votes": 64
