@@ -242,7 +242,7 @@ const Settings = () => {
                         name="enabledCollections"
                         label="Enable voting for"
                         placeholder="Select one or more collection"
-                        hint="If none is selected, all the collection content types have voting enabled with default settings."
+                        hint="If none is selected, voting is disabled."
                         withTags
                       >
                         {
