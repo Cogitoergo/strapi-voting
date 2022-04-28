@@ -31,8 +31,6 @@ npm run develop --watch-admin
 
 The **Voting** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
-```
-
 ## 🕸️ Public REST API specification
 
 **Strapi Users vs. Generic authors**
