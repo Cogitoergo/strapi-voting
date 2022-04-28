@@ -41,7 +41,7 @@ Vote for a specific entity of a content type, for example `Page` with `ID: 1`.
 
 Everytime You call this endpoint, on success, selected entities `votes` field will be increased by +1 and a user and a votelog will be created accordingly.
 
-**Example URL**: `https://localhost:1337/api/strapi-voting/api::page.page:1/vote`
+**Example URL**: `https://localhost:1337/strapi-voting/api::page.page:1/vote`
 
 **Example response body**
 
