@@ -1,0 +1,1 @@
+{"version":3,"file":"acceptHeaders.js","sourceRoot":"","sources":["../../src/parameters/acceptHeaders.ts"],"names":[],"mappings":";;;AASa,QAAA,aAAa,GAAwC,UAChE,IAAI;IAEJ,IAAI,CAAC,IAAI,EAAE;QACT,aAAa,EAAE;YACb,MAAM,EAAE,IAAI,CAAC,GAAG,CAAC,OAAO,CAAC,QAAQ,CAAC;YAClC,QAAQ,EAAE,IAAI,CAAC,GAAG,CAAC,OAAO,CAAC,iBAAiB,CAAC;SAC9C;KACF,CAAC,CAAC;AACL,CAAC,CAAC"}
