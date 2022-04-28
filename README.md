@@ -46,16 +46,14 @@ Everytime You call this endpoint, on success, selected entities `votes` field wi
 **Example response body**
 
 ```json
-[
-  {
-    "createdAt": "2022-04-26T12:50:49.954Z",
-    "id": 1,
-    "publishedAt": "2022-04-26T12:50:50.600Z",
-    "title": "Obuolių pyragas",
-    "updatedAt": "2022-04-28T12:17:45.893Z",
-    "votes": 64
-  }
-]
+{
+  "createdAt": "2022-04-26T12:50:49.954Z",
+  "id": 1,
+  "publishedAt": "2022-04-26T12:50:50.600Z",
+  "title": "Obuolių pyragas",
+  "updatedAt": "2022-04-28T12:17:45.893Z",
+  "votes": 64
+}
 ```
 
 Enjoy 🎉
