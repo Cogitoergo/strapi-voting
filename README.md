@@ -26,7 +26,7 @@ npm run develop
 or just run Strapi in the development mode with `--watch-admin` option:
 
 ```bash
-yarn develop --watch-admin
+npm run develop --watch-admin
 ```
 
 The **Voting** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
