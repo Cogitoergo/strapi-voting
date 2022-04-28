@@ -33,36 +33,26 @@ The **Voting** plugin should appear in the **Plugins** section of Strapi sidebar
 
 ## 🕸️ Public REST API specification
 
-**Strapi Users vs. Generic authors**
-> Keep in mind that if you're using auth / authz your requests to setup proper user contexts it has got higher priority in order to take author data comparing to `author` property provided as part of your payload.
+### Vote
 
-### Get Comments
+`POST <host>/api/strapi-voting/api::<collection name>.<content type name>:<entity id>`
 
-*GraphQL equivalent: [Public GraphQL API -> Get Comments](#get-comments-1)*
+Vote for a specific entity of a content type, for example `Page` with `ID: 1`.
 
-`GET <host>/api/comments/api::<collection name>.<content type name>:<entity id>`
-
-Return a hierarchical tree structure of comments for specified instance of Content Type like for example `Page` with `ID: 1`.
-
-**Example URL**: `https://localhost:1337/api/comments/api::page.page:1`
+**Example URL**: `https://localhost:1337/api/strapi-voting/api::page.page:1/vote`
 
 **Example response body**
 
 ```json
 [
-    {
-        // -- Comment Model fields ---,
-        "children": [
-            {
-                // -- Comment Model fields ---,
-                "children": [
-                    // ...
-                ]
-            },
-            // ...
-        ]
-    },
-    // ...
+  {
+    "createdAt": "2022-04-26T12:50:49.954Z",
+    "id": 1,
+    "publishedAt: "2022-04-26T12:50:50.600Z",
+    "title": "Obuolių pyragas",
+    "updatedAt": "2022-04-28T12:17:45.893Z",
+    "votes": 64
+  }
 ]
 ```
 

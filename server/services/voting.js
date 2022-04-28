@@ -169,9 +169,9 @@ module.exports = ({ strapi }) => ({
               if (voteLog) {
                 const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
-                if (updatedUser) {
+                if (updatedUser && voted) {
                   console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
-                  return updatedUser
+                  return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')
                 }
@@ -204,9 +204,9 @@ module.exports = ({ strapi }) => ({
               if (voteLog) {
                 const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...vote.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
-                if (updatedUser) {
+                if (updatedUser && voted) {
                   console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
-                  return updatedUser
+                  return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')
                 }
