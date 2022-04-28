@@ -5,8 +5,9 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 ## ✨ Features
 
 - **Any Content Type relation:** Voting system can be linked to any of your content types, both collection and single.
+- **Voting modes:** Allows users to either vote once per day per for one entity out of the collection, once per day per every entity of the collection or customizable per specific needs.
 - **Moderation Panel:** Search and filter through the logs and see various voting statistics.
-- **Simple to use and change** Plugin is designed to provide a simple and seamless experience with extensive configuration compatabilities.
+- **Simple to use and change:** Plugin is designed to provide a simple and seamless experience with extensive configuration compatabilities.
 
 ## ⏳ Installation
 
