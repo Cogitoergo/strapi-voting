@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "axios": "^0.27.1",
-    "express-fingerprint": "^1.2.2",
     "formik": "^2.2.9",
     "geoip-lite": "^1.4.5",
     "murmurhash3js": "^3.0.1",
