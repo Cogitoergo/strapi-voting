@@ -13,6 +13,7 @@ module.exports = () => {
       useragent,
       acceptheaders
     }
+    console.log('Comps', components)
     const leaves = traverse(components)
       .reduce(function (acc, x) {
         if (this.isLeaf) acc.push(x);
