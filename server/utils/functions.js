@@ -9,7 +9,7 @@ module.exports = {
   },
   getPluginService(name) {
     return strapi
-      .plugin('strapi-voting')
+      .plugin('voting')
       .service(name);
   },
   parseParams: params => Object.keys(params).reduce((prev, curr) => {

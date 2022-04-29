@@ -38,7 +38,7 @@ const ContentTypesTable = ({ contentTypes }) => {
                 <Td>
                   <Flex justifyContent="right" alignItems="right">
                     <LinkButton 
-                      to={`/plugins/strapi-voting/${item.uid}`}
+                      to={`/plugins/voting/${item.uid}`}
                     >
                       View Results
                     </LinkButton>

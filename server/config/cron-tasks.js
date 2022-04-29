@@ -4,7 +4,7 @@ module.exports = {
 			'*/1 * * * *': async ({ strapi }) => {
         try {
           console.log('[VOTING CRON] Trying to clean votes..')
-          await strapi.db.query('plugin::strapi-voting.votelog').updateMany({
+          await strapi.db.query('plugin::voting.votelog').updateMany({
             publicationState: 'live',
             data: {
               publishedAt: null

@@ -41,7 +41,7 @@ module.exports = ({ strapi }) => ({
       date.setHours(0);
       date.setMinutes(0);
       date.setSeconds(0);
-      const votelog = await strapi.entityService.create('plugin::strapi-voting.votelog', {
+      const votelog = await strapi.entityService.create('plugin::voting.votelog', {
         data: {
           ...payload,
           publishedAt: new Date(),
@@ -58,7 +58,7 @@ module.exports = ({ strapi }) => ({
   async findUser (iphash) {
     console.log('[VOTING] Looking for user with iphash:', iphash)
     try {
-      const user = await strapi.entityService.findMany('plugin::strapi-voting.vote', {
+      const user = await strapi.entityService.findMany('plugin::voting.vote', {
         filters: { iphash },
         populate: {
           votes: {
@@ -81,7 +81,7 @@ module.exports = ({ strapi }) => ({
   },
   async updateUser (votes, id) {
     try {
-      const finalVote = await strapi.entityService.update('plugin::strapi-voting.vote', id, {
+      const finalVote = await strapi.entityService.update('plugin::voting.vote', id, {
         data: {
           votes
         },
@@ -95,7 +95,7 @@ module.exports = ({ strapi }) => ({
   },
   async createNewUser (ip, iphash) {
     try {
-      const newUser = await strapi.entityService.create('plugin::strapi-voting.vote', {
+      const newUser = await strapi.entityService.create('plugin::voting.vote', {
         data: {
           ip: ip,
           iphash: iphash,
