@@ -10,10 +10,11 @@ export default {
   register(app) {
     app.addMenuLink({
       to: `/plugins/${pluginId}`,
+      badgeContent: 1,
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
-        defaultMessage: name,
+        defaultMessage: displayName,
       },
       Component: async () => {
         const component = await import(/* webpackChunkName: "[request]" */ './pages/App');
@@ -33,7 +34,7 @@ export default {
         id: pluginId,
         intlLabel: {
           id: `${pluginId}.plugin.name`,
-          defaultMessage: `${name} plugin`,
+          defaultMessage: `${displayName} plugin`,
         },
       },
       [

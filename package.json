@@ -1,9 +1,10 @@
 {
   "name": "strapi-plugin-voting",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Strapi v4 voting system plugin. Add a simple voting system to any collection type.",
   "strapi": {
-    "name": "strapi-voting",
+    "name": "voting",
+    "displayName": "Comments",
     "description": "Add a simple voting system to any collection type.",
     "kind": "plugin"
   },
@@ -20,8 +21,8 @@
     "Karolis Stakėnas <karolis.stakenas@gmail.com>"
   ],
   "engines": {
-    "node": ">=12.x.x <=16.x.x",
-    "npm": ">=6.0.0"
+    "node": ">=14.x.x <=17.x.x",
+    "npm": ">=7.0.0"
   },
   "license": "MIT",
   "devDependencies": {},
