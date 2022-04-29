@@ -33,7 +33,7 @@
     votes: {
       type: 'relation',
       relation: 'oneToMany',
-      target: 'plugin::strapi-voting.votelog',
+      target: 'plugin::voting.votelog',
       configurable: false
     }
   },

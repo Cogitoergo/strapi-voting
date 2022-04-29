@@ -48,7 +48,7 @@
     },
     user: {
       type: 'relation',
-      target: 'plugin::strapi-voting.vote',
+      target: 'plugin::voting.vote',
       relation: 'manyToOne'
     }
   },
