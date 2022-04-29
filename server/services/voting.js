@@ -123,10 +123,10 @@ module.exports = ({ strapi }) => ({
       throw new PluginError(400, e.message);
     }
   },
-  async vote(relation, data, user = undefined, fingerprint) {
+  async vote(relation, data, user = undefined, fingerprint = {}) {
     // Fingerprinting
-    const ip = fingerprint?.components?.geoip?.ip
-    const hash = fingerprint?.hash
+    const ip = fingerprint.components.geoip.ip
+    const hash = fingerprint.hash
     const iphash = ip.split(',')[0] + hash
     // Check for correct collection relation string in req
     const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);

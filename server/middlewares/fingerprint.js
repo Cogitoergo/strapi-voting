@@ -5,6 +5,7 @@ const { x64 } = require("murmurhash3js");
 module.exports = () => {
   return async (ctx, next) => {
     const { req, request } = ctx;
+    console.log(req, request);
     const geoip = getGeoIp(req || request);
     const useragent = getUserAgent(req || request);
     const acceptheaders = getAcceptHeaders(req || request);
