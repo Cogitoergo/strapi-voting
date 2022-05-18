@@ -5,7 +5,6 @@ const { x64 } = require("murmurhash3js");
 module.exports = () => {
   return async (ctx, next) => {
     const { req, request } = ctx;
-    console.log(req, request);
     const geoip = getGeoIp(req || request);
     const useragent = getUserAgent(req || request);
     const acceptheaders = getAcceptHeaders(req || request);
@@ -14,13 +13,16 @@ module.exports = () => {
       useragent,
       acceptheaders
     }
-    console.log('Comps', components)
     const leaves = traverse(components)
       .reduce(function (acc, x) {
         if (this.isLeaf) acc.push(x);
         return acc;
       }, []);
     const hash = x64.hash128(leaves.join("~~~"));
+    ctx.fingerprint = {
+      hash,
+      components
+    };
     ctx.req.fingerprint = {
       hash,
       components

@@ -1,7 +1,7 @@
 module.exports = {
 	registerCronTasks: ({ strapi }) => {
 		strapi.cron.add({
-			'*/1 * * * *': async ({ strapi }) => {
+			'0 0 0 * * *': async ({ strapi }) => {
         try {
           console.log('[VOTING CRON] Trying to clean votes..')
           await strapi.db.query('plugin::voting.votelog').updateMany({
@@ -16,7 +16,8 @@ module.exports = {
         }
 			},
 		}, {
-      timezone: 'Europe/Vilnius'
+      scheduled: true,
+      timezone: "Europe/Vilnius"
     });
 	},
 };
