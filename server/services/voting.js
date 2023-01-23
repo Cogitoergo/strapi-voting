@@ -128,6 +128,8 @@ module.exports = ({ strapi }) => ({
     const ip = fingerprint.components.geoip.ip
     const hash = fingerprint.hash
     const iphash = ip.split(',')[0] + hash
+    console.log('[[[[[[[[TEST IP]]]]]]]', ip)
+    console.log('[[[[[[[[TEST FINGERPRINT]]]]]]]', fingerprint)
     // Check for correct collection relation string in req
     const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);
     if (!singleRelationFulfilled) {
