@@ -32,6 +32,13 @@ module.exports = {
       req.socket?.remoteAddress ||
       req.connection?.socket?.remoteAddress ||
       req.ip;
+    console.log('============ FINGERPRINT ============')
+    console.log('[IPS] 1:', req.headers["x-forwarded-for"])
+    console.log('[IPS] 2:', req.connection?.remoteAddress)
+    console.log('[IPS] 3:', req.socket?.remoteAddress)
+    console.log('[IPS] 4:', req.connection?.socket?.remoteAddress)
+    console.log('[IPS] 5:', req.ip)
+    console.log('========== END FINGERPRINT ==========')
     const geo = GeoipLite.lookup(ip);
     return {
       ip: ip ? ip : null,
