@@ -27,7 +27,7 @@ module.exports = {
     }
   },
   getGeoIp (req) {
-    const ip = (req.headers["x-forwarded-for"] || "").split(",").pop() ||
+    const ip = (req.headers["x-forwarded-for"] || "").split(",").shift() ||
       req.connection?.remoteAddress ||
       req.socket?.remoteAddress ||
       req.connection?.socket?.remoteAddress ||
