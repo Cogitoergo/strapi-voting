@@ -127,6 +127,7 @@ module.exports = ({ strapi }) => ({
     // Fingerprinting
     const ip = fingerprint.components.geoip.ip
     const country = fingerprint.components.geoip.country
+    const userAgent = fingerprint.components.useragent.string
     console.log('[TEST COUNTRY]', country)
     if (country !== 'LT') {
       throw new PluginError(400, `Voting is only possible from within Lithuania.`);
@@ -166,6 +167,8 @@ module.exports = ({ strapi }) => ({
                 ip: ip,
                 iphash: iphash,
                 related: relation,
+                country,
+                userAgent,
                 user: votingUser.id,
                 voteId: String(relatedId),
                 votedAt: new Date()
@@ -207,10 +210,10 @@ module.exports = ({ strapi }) => ({
               }
               const voteLog = await this.createVotelog(payload)
               if (voteLog) {
-                const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...vote.votes, voteLog.id] : [voteLog.id]
+                const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...votingUserNew.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
                 if (updatedUser && voted) {
-                  // console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
+                  console.log('[VOTING] Voting finished successfuly')
                   return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')

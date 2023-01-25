@@ -11,6 +11,7 @@ module.exports = {
   getUserAgent (req) {
     const agent = ua.parse(req.headers["user-agent"]);
     return {
+      string: req.headers["user-agent"],
       browser: {
         family: agent.family,
         version: agent.major,
