@@ -128,6 +128,9 @@ module.exports = ({ strapi }) => ({
     const ip = fingerprint.components.geoip.ip
     const country = fingerprint.components.geoip.country
     console.log('[TEST COUNTRY]', country)
+    if (country !== 'LT') {
+      throw new PluginError(400, `Voting is only possible from within Lithuania.`);
+    }
     const hash = fingerprint.hash
     const iphash = ip.split(',')[0] + hash
     console.log('[[[[[[[[TEST IP]]]]]]]', ip)
