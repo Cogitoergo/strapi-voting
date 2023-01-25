@@ -126,6 +126,8 @@ module.exports = ({ strapi }) => ({
   async vote(relation, data, user = undefined, fingerprint = {}) {
     // Fingerprinting
     const ip = fingerprint.components.geoip.ip
+    const country = fingerprint.components.geoip.country
+    console.log('[TEST COUNTRY]', country)
     const hash = fingerprint.hash
     const iphash = ip.split(',')[0] + hash
     console.log('[[[[[[[[TEST IP]]]]]]]', ip)
