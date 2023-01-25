@@ -205,6 +205,8 @@ module.exports = ({ strapi }) => ({
                 // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
                 const payload = {
                   ip: ip,
+                  country,
+                  userAgent,
                   iphash: iphash,
                   related: relation,
                   user: votingUserNew.id,
