@@ -128,110 +128,114 @@ module.exports = ({ strapi }) => ({
     const ip = fingerprint.components.geoip.ip
     const country = fingerprint.components.geoip.country
     const userAgent = fingerprint.components.useragent.string
-    console.log('[TEST COUNTRY]', country)
-    if (country !== 'LT') {
-      throw new PluginError(400, `Voting is only possible from within Lithuania.`);
-    }
-    const hash = fingerprint.hash
-    const iphash = ip.split(',')[0] + hash
-    console.log('[[[[[[[[TEST IP]]]]]]]', ip)
-    console.log('[[[[[[[[TEST FINGERPRINT]]]]]]]', fingerprint)
-    // Check for correct collection relation string in req
-    const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);
-    if (!singleRelationFulfilled) {
-      throw new PluginError(400, `Field "related" got incorrect format, use format like "api::<collection name>.<content type name>:<entity id>"`);
-    }
-    // Parse collection relation string
-    const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
-    // Find related entity by relation string
-    const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { fields: ['votes'] });
-    if (!relatedEntity) {
-      throw new PluginError(400, `Relation for field "related" does not exist. Check your payload please.`);
-    }
-    // If relation correct and entity found...
-    if (singleRelationFulfilled && relatedEntity) {
-      try {
-        // Try to find user
-        const votingUser = await this.findUser(iphash)
-        if (votingUser) {
-          // Check for ids
-          const votedBefore = checkForExistingId(votingUser.votes, relation)
-          if (votedBefore) {
-            throw new PluginError(403, `Already voted for ${relation}`);
-          } else {
-            const votes = await relatedEntity.votes + 1
-            const voted = await this.doVoting(uid, relatedEntity.id, votes)
-            if (voted) {
-              // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
-              const payload = {
-                ip: ip,
-                iphash: iphash,
-                related: relation,
-                country,
-                userAgent,
-                user: votingUser.id,
-                voteId: String(relatedId),
-                votedAt: new Date()
-              }
-              const voteLog = await this.createVotelog(payload)
-              if (voteLog) {
-                const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
-                const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
-                if (updatedUser && voted) {
-                  // console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
-                  return voted
-                } else {
-                  console.log('[VOTING] Voting did not successfuly finished, error updating user')
-                }
-              } else {
-                console.log('[VOTING] VoteLog creation failed, aborting..')
-              }
-            } else {
-              console.log('[VOTING] Voting failed, aborting..')
-            }
-          }
-          return { test: 'test' }
-        } else {
-          // console.log('[VOTING] User not found, creating one..')
-          const votingUserNew = await this.createNewUser(ip, iphash)
-          if (votingUserNew) {
-            // console.log('[VOTING] New user created:', votingUserNew)
-            const votes = await relatedEntity.votes + 1
-            const voted = await this.doVoting(uid, relatedEntity.id, votes)
-            if (voted) {
-              // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
-              const payload = {
-                ip: ip,
-                iphash: iphash,
-                related: relation,
-                user: votingUserNew.id,
-                voteId: String(relatedId),
-                votedAt: new Date()
-              }
-              const voteLog = await this.createVotelog(payload)
-              if (voteLog) {
-                const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...votingUserNew.votes, voteLog.id] : [voteLog.id]
-                const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
-                if (updatedUser && voted) {
-                  console.log('[VOTING] Voting finished successfuly')
-                  return voted
-                } else {
-                  console.log('[VOTING] Voting did not successfuly finished, error updating user')
-                }
-              } else {
-                console.log('[VOTING] VoteLog creation failed, aborting..')
-              }
-            } else {
-              console.log('[VOTING] Voting failed, aborting..')
-            }
-          } else {
-            console.log('[VOTING] New user creation failed, aborting..')
-          }
-        }
-      } catch (e) {
-        throw new PluginError(400, e.message);
+    if (!ip || !country || !userAgent) {
+      throw new PluginError(400, `There has been an error parsing userAgent/IP strings.`);
+    } else {
+      console.log('[TEST COUNTRY]', country)
+      if (country !== 'LT') {
+        throw new PluginError(400, `Voting is only possible from within Lithuania.`);
       }
+      const hash = fingerprint.hash
+      const iphash = ip.split(',')[0] + hash
+      console.log('[[[[[[[[TEST IP]]]]]]]', ip)
+      console.log('[[[[[[[[TEST FINGERPRINT]]]]]]]', fingerprint)
+      // Check for correct collection relation string in req
+      const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);
+      if (!singleRelationFulfilled) {
+        throw new PluginError(400, `Field "related" got incorrect format, use format like "api::<collection name>.<content type name>:<entity id>"`);
+      }
+      // Parse collection relation string
+      const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
+      // Find related entity by relation string
+      const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { fields: ['votes'] });
+      if (!relatedEntity) {
+        throw new PluginError(400, `Relation for field "related" does not exist. Check your payload please.`);
+      }
+      // If relation correct and entity found...
+      if (singleRelationFulfilled && relatedEntity) {
+        try {
+          // Try to find user
+          const votingUser = await this.findUser(iphash)
+          if (votingUser) {
+            // Check for ids
+            const votedBefore = checkForExistingId(votingUser.votes, relation)
+            if (votedBefore) {
+              throw new PluginError(403, `Already voted for ${relation}`);
+            } else {
+              const votes = await relatedEntity.votes + 1
+              const voted = await this.doVoting(uid, relatedEntity.id, votes)
+              if (voted) {
+                // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
+                const payload = {
+                  ip: ip,
+                  iphash: iphash,
+                  related: relation,
+                  country,
+                  userAgent,
+                  user: votingUser.id,
+                  voteId: String(relatedId),
+                  votedAt: new Date()
+                }
+                const voteLog = await this.createVotelog(payload)
+                if (voteLog) {
+                  const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
+                  const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
+                  if (updatedUser && voted) {
+                    // console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
+                    return voted
+                  } else {
+                    console.log('[VOTING] Voting did not successfuly finished, error updating user')
+                  }
+                } else {
+                  console.log('[VOTING] VoteLog creation failed, aborting..')
+                }
+              } else {
+                console.log('[VOTING] Voting failed, aborting..')
+              }
+            }
+            return { test: 'test' }
+          } else {
+            // console.log('[VOTING] User not found, creating one..')
+            const votingUserNew = await this.createNewUser(ip, iphash)
+            if (votingUserNew) {
+              // console.log('[VOTING] New user created:', votingUserNew)
+              const votes = await relatedEntity.votes + 1
+              const voted = await this.doVoting(uid, relatedEntity.id, votes)
+              if (voted) {
+                // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
+                const payload = {
+                  ip: ip,
+                  iphash: iphash,
+                  related: relation,
+                  user: votingUserNew.id,
+                  voteId: String(relatedId),
+                  votedAt: new Date()
+                }
+                const voteLog = await this.createVotelog(payload)
+                if (voteLog) {
+                  const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...votingUserNew.votes, voteLog.id] : [voteLog.id]
+                  const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
+                  if (updatedUser && voted) {
+                    console.log('[VOTING] Voting finished successfuly')
+                    return voted
+                  } else {
+                    console.log('[VOTING] Voting did not successfuly finished, error updating user')
+                  }
+                } else {
+                  console.log('[VOTING] VoteLog creation failed, aborting..')
+                }
+              } else {
+                console.log('[VOTING] Voting failed, aborting..')
+              }
+            } else {
+              console.log('[VOTING] New user creation failed, aborting..')
+            }
+          }
+        } catch (e) {
+          throw new PluginError(400, e.message);
+        }
+      }
+      throw new PluginError(400, 'No content received');
     }
-    throw new PluginError(400, 'No content received');
   }
 });
