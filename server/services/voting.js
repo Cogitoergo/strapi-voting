@@ -154,16 +154,14 @@ module.exports = ({ strapi }) => ({
         const votingUser = await this.findUser(iphash)
         if (votingUser) {
           // Check for ids
-          console.log('[VOTING] votingUser:', votingUser)
           const votedBefore = checkForExistingId(votingUser.votes, relation)
-          console.log('[VOTING] votedBefore:', votedBefore)
           if (votedBefore) {
             throw new PluginError(403, `Already voted for ${relation}`);
           } else {
             const votes = await relatedEntity.votes + 1
             const voted = await this.doVoting(uid, relatedEntity.id, votes)
             if (voted) {
-              console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
+              // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
               const payload = {
                 ip: ip,
                 iphash: iphash,
@@ -177,7 +175,7 @@ module.exports = ({ strapi }) => ({
                 const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
                 if (updatedUser && voted) {
-                  console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
+                  // console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
                   return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')
@@ -191,14 +189,14 @@ module.exports = ({ strapi }) => ({
           }
           return { test: 'test' }
         } else {
-          console.log('[VOTING] User not found, creating one..')
+          // console.log('[VOTING] User not found, creating one..')
           const votingUserNew = await this.createNewUser(ip, iphash)
           if (votingUserNew) {
-            console.log('[VOTING] New user created:', votingUserNew)
+            // console.log('[VOTING] New user created:', votingUserNew)
             const votes = await relatedEntity.votes + 1
             const voted = await this.doVoting(uid, relatedEntity.id, votes)
             if (voted) {
-              console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
+              // console.log('[VOTING] Voted successfuly', JSON.stringify(voted))
               const payload = {
                 ip: ip,
                 iphash: iphash,
@@ -212,7 +210,7 @@ module.exports = ({ strapi }) => ({
                 const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...vote.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
                 if (updatedUser && voted) {
-                  console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
+                  // console.log('[VOTING] Voting finished successfuly', JSON.stringify(updatedUser))
                   return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')
