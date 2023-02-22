@@ -129,11 +129,11 @@ module.exports = ({ strapi }) => ({
     const country = fingerprint.components.geoip.country
     const userAgent = fingerprint.components.useragent.string
     if (!ip || !country || !userAgent) {
-      throw new PluginError(400, `There has been an error parsing userAgent/IP strings.`);
+      throw new PluginError(400, `There has been an error parsing userAgent/IP strings. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
     } else {
       console.log('[TEST COUNTRY]', country)
-      if (country !== 'LT') {
-        throw new PluginError(400, `Voting is only possible from within Lithuania.`);
+      if (country !== 'LT' && country !== 'ADMIN') {
+        throw new PluginError(400, `Voting is only possible from within Lithuania. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
       }
       const hash = fingerprint.hash
       const iphash = ip.split(',')[0] + hash

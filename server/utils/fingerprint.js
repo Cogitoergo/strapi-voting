@@ -41,9 +41,16 @@ module.exports = {
     // console.log('[IPS] 5:', req.ip)
     // console.log('========== END FINGERPRINT ==========')
     const geo = GeoipLite.lookup(ip);
-    return {
-      ip: ip ? ip : null,
-      country: geo ? geo.country : null
+    if (!geo && ip && (ip === '192.168.51.1' || ip === '193.41.197.4' || ip === '193.41.197.160' || ip === '193.41.197.201' || ip === '192.168.19.112')) {
+      return {
+        ip: ip,
+        country: 'ADMIN'
+      }
+    } else {
+      return {
+        ip: ip ? ip : null,
+        country: geo ? geo.country : null
+      }
     }
   }
 }
