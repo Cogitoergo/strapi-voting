@@ -1,8 +1,13 @@
 'use strict';
+
 const { getPluginService } = require('../utils/functions');
 const { checkForExistingId } = require('./utils/functions')
 const { REGEX } = require('../utils/constants');
 const PluginError = require('./../utils/error');
+const { verifyRecaptcha } = require('./../utils/verifyRecaptcha');
+
+const configData = {}
+const googleRecaptcha = configData.googleRecaptcha || {}
 
 module.exports = ({ strapi }) => ({
   pluginService (name = 'common') {
@@ -123,7 +128,18 @@ module.exports = ({ strapi }) => ({
       throw new PluginError(400, e.message);
     }
   },
-  async vote(relation, data, user = undefined, fingerprint = {}) {
+  async vote(relation, recaptchaToken, fingerprint = {}) {
+    // Google Recaptcha
+    const recaptchaEnabled = googleRecaptcha[relation] || false
+    if (recaptchaEnabled) {
+      if (!recaptchaToken) {
+        throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
+      }
+      const recaptchaResponse = await verifyRecaptcha(recaptchaToken)
+      if (!recaptchaResponse.success) {
+        throw new PluginError(400, `Google Recaptcha verification failed.`);
+      }
+    }
     // Fingerprinting
     const ip = fingerprint.components.geoip.ip
     const country = fingerprint.components.geoip.country
@@ -131,14 +147,11 @@ module.exports = ({ strapi }) => ({
     if (!ip || !country || !userAgent) {
       throw new PluginError(400, `There has been an error parsing userAgent/IP strings. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
     } else {
-      console.log('[TEST COUNTRY]', country)
       if (country !== 'LT' && country !== 'ADMIN') {
         throw new PluginError(400, `Voting is only possible from within Lithuania. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
       }
       const hash = fingerprint.hash
       const iphash = ip.split(',')[0] + hash
-      console.log('[[[[[[[[TEST IP]]]]]]]', ip)
-      console.log('[[[[[[[[TEST FINGERPRINT]]]]]]]', fingerprint)
       // Check for correct collection relation string in req
       const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);
       if (!singleRelationFulfilled) {

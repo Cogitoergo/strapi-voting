@@ -411,7 +411,7 @@ const Settings = () => {
                         header="Restore default configuration"
                         labelConfirm="Confirm"
                         iconConfirm={<Refresh />}
-                        onConfirm={handleRestoreConfiguration} 
+                        onConfirm={handleRestoreConfiguration}
                         onCancel={handleRestoreCancel}>
                           You're about to restore plugin configuration to it default values. It might have destructive impact on already collected content. Do you really want to proceed?
                       </ConfirmationDialog>
