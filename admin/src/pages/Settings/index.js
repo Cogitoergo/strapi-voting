@@ -17,6 +17,7 @@ import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@s
 import { Main } from '@strapi/design-system/Main';
 import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
 import { Button } from '@strapi/design-system/Button';
+import { Checkbox } from '@strapi/design-system';
 import { Box } from '@strapi/design-system/Box';
 import { Stack } from '@strapi/design-system/Stack';
 import { Typography } from '@strapi/design-system/Typography';
