@@ -126,10 +126,10 @@ module.exports = ({ strapi }) => ({
     }
   },
   async vote(relation, data, user = null, fingerprint = {}) {
-    const config = await this.pluginService().getConfig('googleRecaptcha')
-    console.log('[RECAPTCHA CONFIG]', config)
+    const config = await this.pluginService().getConfig('googleRecaptcha');
+    const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
     // Google Recaptcha
-    const recaptchaEnabled = config[relation] || false
+    const recaptchaEnabled = config[uid] || false
     console.log('[RECAPTCHA ENABLED]', recaptchaEnabled, data)
     if (recaptchaEnabled) {
       if (!data.recaptchaToken) {
@@ -158,7 +158,7 @@ module.exports = ({ strapi }) => ({
         throw new PluginError(400, `Field "related" got incorrect format, use format like "api::<collection name>.<content type name>:<entity id>"`);
       }
       // Parse collection relation string
-      const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
+      // const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
       // Find related entity by relation string
       const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { fields: ['votes'] });
       if (!relatedEntity) {
