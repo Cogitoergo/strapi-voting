@@ -130,6 +130,7 @@ module.exports = ({ strapi }) => ({
     console.log('[RECAPTCHA CONFIG]', config)
     // Google Recaptcha
     const recaptchaEnabled = config[relation] || false
+    console.log('[RECAPTCHA ENABLED]', recaptchaEnabled, data)
     if (recaptchaEnabled) {
       if (!data.recaptchaToken) {
         throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
