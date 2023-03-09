@@ -372,7 +372,7 @@ const Settings = () => {
                                             label="Enable Google Recaptcha for the given collection"
                                             hint="(Requires client/front side implementation)"
                                             value={values.googleRecaptcha && values.googleRecaptcha[collection] || false}
-                                            onChange={(value) => setFieldValue('googleRecaptcha', changeRecaptchaFor(collection, values.googleRecaptcha, value))}
+                                            onChange={(value) => setFieldValue('googleRecaptcha', changeRecaptchaFor(collection, values.googleRecaptcha, value.target.checked))}
                                           >
                                             Google Recaptcha
                                           </Checkbox>
