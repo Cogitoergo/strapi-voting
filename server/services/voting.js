@@ -131,14 +131,12 @@ module.exports = ({ strapi }) => ({
     // Google Recaptcha
     const recaptchaEnabled = config[uid] || false
     const dataJson = JSON.parse(data)
-    console.log('[RECAPTCHA ENABLED]', recaptchaEnabled, dataJson)
     if (recaptchaEnabled) {
       if (!dataJson.recaptchaToken) {
-        console.log('[RECAPTCHA NO TOKEN]', data)
         throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
       }
       const recaptchaResponse = await verifyRecaptcha(dataJson.recaptchaToken)
-      if (!recaptchaResponse.success) {
+      if (!recaptchaResponse || !recaptchaResponse.success) {
         throw new PluginError(400, `Google Recaptcha verification failed.`);
       }
     }
