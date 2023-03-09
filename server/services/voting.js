@@ -6,9 +6,6 @@ const { REGEX } = require('../utils/constants');
 const PluginError = require('./../utils/error');
 const { verifyRecaptcha } = require('./../utils/verifyRecaptcha');
 
-const configData = {}
-const googleRecaptcha = configData.googleRecaptcha || {}
-
 module.exports = ({ strapi }) => ({
   pluginService (name = 'common') {
     return getPluginService(name)
@@ -129,8 +126,10 @@ module.exports = ({ strapi }) => ({
     }
   },
   async vote(relation, data, user = null, fingerprint = {}) {
+    const config = await this.pluginService.getConfig('googleRecaptcha')
+    console.log('[RECAPTCHA CONFIG]', config)
     // Google Recaptcha
-    const recaptchaEnabled = googleRecaptcha[relation] || false
+    const recaptchaEnabled = config[relation] || false
     if (recaptchaEnabled) {
       if (!data.recaptchaToken) {
         throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
