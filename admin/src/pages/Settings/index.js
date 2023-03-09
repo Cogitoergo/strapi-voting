@@ -367,7 +367,8 @@ const Settings = () => {
                                         </GridItem>
                                         <GridItem col={4}>
                                           <Checkbox
-                                            hint="Pažymėkite norėdami, kad veiktu Google Recaptcha"
+                                            label="Enable Google Recaptcha for the given collection"
+                                            hint="(Requires client/front side implementation)"
                                             value={values.googleRecaptcha && values.googleRecaptcha[collection] || false}
                                             onChange={(value) => setFieldValue('googleRecaptcha', changeRecaptchaFor(collection, values.googleRecaptcha, value))}
                                           >

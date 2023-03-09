@@ -48,7 +48,9 @@ module.exports = ({ strapi }) => ({
     }
 
     const entryLabel = this.getLocalConfig('entryLabel');
+    const googleRecaptcha = this.getLocalConfig('googleRecaptcha');
     const result = {
+      googleRecaptcha,
       entryLabel,
       ...additionalConfiguration,
     };
@@ -65,6 +67,7 @@ module.exports = ({ strapi }) => ({
   },
 
   async updateConfig(body) {
+    console.log('[UPDATE CONFIG BODY]', body)
     const pluginStore = await this.getPluginStore();
     await pluginStore.set({ key: 'config', value: body });
     return this.config();
