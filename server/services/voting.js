@@ -126,7 +126,7 @@ module.exports = ({ strapi }) => ({
     }
   },
   async vote(relation, data, user = null, fingerprint = {}) {
-    const config = await this.pluginService.getConfig('googleRecaptcha')
+    const config = await this.pluginService().getConfig('googleRecaptcha')
     console.log('[RECAPTCHA CONFIG]', config)
     // Google Recaptcha
     const recaptchaEnabled = config[relation] || false
