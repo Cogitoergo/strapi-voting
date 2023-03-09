@@ -51,7 +51,7 @@ const Settings = () => {
 	const isError = configErr || collectionsErr;
 
   const preparePayload = ({ enabledCollections, votingPeriods, entryLabel, googleRecaptcha, ...rest }) => {
-		return {
+		const payload = {
       ...rest,
       enabledCollections: enabledCollections,
       entryLabel: {
@@ -74,7 +74,9 @@ const Settings = () => {
           [curr]: enabledCollections.includes(curr) ? votingPeriods[curr] : undefined,
         }), {})
       },
-    }
+    };
+    console.log('PREPARED PAYLOAD', payload);
+    return payload;
 	};
 
   if (isLoading || isError) {
@@ -183,7 +185,7 @@ const Settings = () => {
   const changeRecaptchaFor = (uid, current, value) => {
 		const temp = {
       ...current,
-		  [uid]: value && !_.isEmpty(value) ? value : undefined,
+		  [uid]: value ? value : false,
     };
     return temp;
 	};
