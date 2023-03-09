@@ -128,14 +128,14 @@ module.exports = ({ strapi }) => ({
       throw new PluginError(400, e.message);
     }
   },
-  async vote(relation, recaptchaToken, fingerprint = {}) {
+  async vote(relation, data, user = null, fingerprint = {}) {
     // Google Recaptcha
     const recaptchaEnabled = googleRecaptcha[relation] || false
     if (recaptchaEnabled) {
-      if (!recaptchaToken) {
+      if (!data.recaptchaToken) {
         throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
       }
-      const recaptchaResponse = await verifyRecaptcha(recaptchaToken)
+      const recaptchaResponse = await verifyRecaptcha(data.recaptchaToken)
       if (!recaptchaResponse.success) {
         throw new PluginError(400, `Google Recaptcha verification failed.`);
       }
