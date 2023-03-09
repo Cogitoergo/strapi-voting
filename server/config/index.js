@@ -7,7 +7,9 @@ module.exports = {
       '*': ['Votes', 'votes', 'Vote', 'vote', 'Balsai', 'blsai', 'Balsu', 'balsu']
     },
     votingPeriods: {},
-    googleRecaptcha: false
+    googleRecaptcha: {
+      '*': false
+    }
   },
   validator() {},
 };

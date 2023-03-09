@@ -50,7 +50,7 @@ const Settings = () => {
   const isLoading = isConfigLoading || areCollectionsLoading;
 	const isError = configErr || collectionsErr;
 
-  const preparePayload = ({ enabledCollections, votingPeriods, entryLabel, ...rest }) => {
+  const preparePayload = ({ enabledCollections, votingPeriods, entryLabel, googleRecaptcha, ...rest }) => {
 		return {
       ...rest,
       enabledCollections: enabledCollections,
@@ -60,6 +60,13 @@ const Settings = () => {
           [curr]: enabledCollections.includes(curr) ? entryLabel[curr] : undefined,
         }), {}),
         '*': entryLabel['*'],
+      },
+      googleRecaptcha: {
+        ...Object.keys(googleRecaptcha).reduce((prev, curr) => ({
+          ...prev,
+          [curr]: enabledCollections.includes(curr) ? googleRecaptcha[curr] : undefined,
+        }), {}),
+        '*': googleRecaptcha['*'],
       },
       votingPeriods: {
         ...Object.keys(votingPeriods).reduce((prev, curr) => ({
@@ -103,6 +110,7 @@ const Settings = () => {
 
   const entryLabel = configData.entryLabel || {};
   const votingPeriods = configData.votingPeriods || {};
+  const googleRecaptcha = configData.googleRecaptcha || {};
 
   const handleUpdateConfiguration = async (form) => {
 
@@ -112,8 +120,9 @@ const Settings = () => {
     await submitMutation.mutateAsync(payload);
     const enabledCollectionsChanged = !isEqual(payload.enabledCollections, configData?.enabledCollections);
     const votingPeriodsChanged = !isEqual(payload.votingPeriods, configData?.votingPeriods);
+    const googleRecaptchaChanged = !isEqual(payload.googleRecaptcha, configData?.googleRecaptcha);
 
-    if (enabledCollectionsChanged || votingPeriodsChanged) {
+    if (enabledCollectionsChanged || votingPeriodsChanged || googleRecaptchaChanged) {
       setRestartRequired(true);
     }
 
@@ -171,6 +180,14 @@ const Settings = () => {
     return temp;
 	};
 
+  const changeRecaptchaFor = (uid, current, value) => {
+		const temp = {
+      ...current,
+		  [uid]: value && !_.isEmpty(value) ? value : undefined,
+    };
+    return temp;
+	};
+
   const changeVotingPeriodFor = (uid, current, value, type) => {
     const dateObj = current[uid] || {};
     const date = value;
@@ -199,7 +216,8 @@ const Settings = () => {
 				initialValues={{
 					enabledCollections,
 					entryLabel,
-          votingPeriods
+          votingPeriods,
+          googleRecaptcha
 				}}
 				enableReinitialize={true}
 				onSubmit={handleUpdateConfiguration}
@@ -350,7 +368,8 @@ const Settings = () => {
                                         <GridItem col={4}>
                                           <Checkbox
                                             hint="Pažymėkite norėdami, kad veiktu Google Recaptcha"
-                                            onChange={(value) => setFieldValue('googleRecaptcha', value)}
+                                            value={values.googleRecaptcha && values.googleRecaptcha[collection] || false}
+                                            onChange={(value) => setFieldValue('googleRecaptcha', changeRecaptchaFor(collection, values.googleRecaptcha, value))}
                                           >
                                             Google Recaptcha
                                           </Checkbox>
