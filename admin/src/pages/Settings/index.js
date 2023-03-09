@@ -346,6 +346,14 @@ const Settings = () => {
                                             }
                                           </Select>
                                         </GridItem>
+                                        <GridItem col={4}>
+                                          <Checkbox
+                                            hint="Pažymėkite norėdami, kad veiktu Google Recaptcha"
+                                            onChange={(value) => setFieldValue('googleRecaptcha', value)}
+                                          >
+                                            Google Recaptcha
+                                          </Checkbox>
+                                        </GridItem>
                                       </Grid>
                                     </Stack>
                                   </Box>

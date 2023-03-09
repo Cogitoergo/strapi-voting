@@ -6,7 +6,8 @@ module.exports = {
     entryLabel: {
       '*': ['Votes', 'votes', 'Vote', 'vote', 'Balsai', 'blsai', 'Balsu', 'balsu']
     },
-    votingPeriods: {}
+    votingPeriods: {},
+    googleRecaptcha: false
   },
   validator() {},
 };
