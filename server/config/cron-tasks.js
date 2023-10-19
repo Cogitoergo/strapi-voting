@@ -6,6 +6,11 @@ module.exports = {
           console.log('[VOTING CRON] Trying to clean votes..')
           await strapi.db.query('plugin::voting.votelog').updateMany({
             publicationState: 'live',
+            where: {
+              related: {
+                $notContainsi: 'api::gastronomijos-savaite.gastronomijos-savaite',
+              }
+            },
             data: {
               publishedAt: null
             }
