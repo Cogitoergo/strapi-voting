@@ -5,6 +5,7 @@ const { checkForExistingId } = require('./utils/functions')
 const { REGEX } = require('../utils/constants');
 const PluginError = require('./../utils/error');
 const { verifyRecaptcha } = require('./../utils/verifyRecaptcha');
+const { sanitizeEntity } = require('@strapi/utils');
 
 module.exports = ({ strapi }) => ({
   pluginService (name = 'common') {
@@ -34,7 +35,7 @@ module.exports = ({ strapi }) => ({
   },
   async getCollection(contentType) {
     const entries = await strapi.entityService.findMany(contentType, { populate: '*' })
-    return entries
+    return entries.map(entry => sanitizeEntity(entry, { model: strapi.models[contentType] }))
   },
   async createVotelog (payload) {
     try {
