@@ -35,7 +35,8 @@ module.exports = ({ strapi }) => ({
   },
   async getCollection(contentType) {
     const entries = await strapi.entityService.findMany(contentType, { populate: '*' })
-    return entries.map(entry => sanitizeEntity(entry, { model: strapi.models[contentType] }))
+    const modelName = contentType.split("::")[1].split(".")[1];
+    return entries.map(entry => sanitizeEntity(entry, { model: strapi.models[modelName] }))
   },
   async createVotelog (payload) {
     try {
