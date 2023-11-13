@@ -29,8 +29,6 @@ module.exports = {
     const { id } = ctx.params;
   
     console.log('ID:', id);
-    console.log('Schema:', schema);
-    console.log('Auth:', auth);
   
     const entries = await this.getService().getCollection(id)
   
