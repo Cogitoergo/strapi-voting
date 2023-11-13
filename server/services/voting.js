@@ -53,6 +53,9 @@ module.exports = ({ strapi }) => ({
   },
   async getCollection(contentType) {
     const entries = await strapi.entityService.findMany(contentType, { populate: '*' });
+    console.log('----- STRAPI MODELS -----')
+    console.log(strapi.models)
+    console.log('----- ------------- -----')
     const modelName = this.resolveModelName(contentType);
     return entries.map(entry => sanitizeEntity(entry, { model: strapi.models[modelName] }));
   },
