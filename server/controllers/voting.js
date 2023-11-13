@@ -20,20 +20,23 @@ module.exports = {
     ctx.body = this.getService()
       .fetchContentTypesFields(model)
   },
-  async getCollection(ctx) {
-    const { id } = ctx.params;
+  sanitizeData (data, id, ctx) {
     const schema = strapi.getModel(id);
     const { auth } = ctx.state;
+    return sanitize.contentAPI.output(data, schema, { auth });
+  },
+  async getCollection(ctx) {
+    const { id } = ctx.params;
   
     console.log('ID:', id);
     console.log('Schema:', schema);
     console.log('Auth:', auth);
   
-    const entries = await this.getService().getCollection(id);
+    const entries = await this.getService().getCollection(id)
   
     console.log('Entries before sanitization:', entries);
   
-    ctx.body = sanitize.contentAPI.output(entries, schema, { auth });
+    ctx.body = await this.sanitizeData(entries, id, ctx)
   
     console.log('Response:', ctx.body);
   },
