@@ -38,11 +38,11 @@ module.exports = ({ strapi }) => ({
     let baseName = contentType.split("::")[1].split(".")[1];
   
     // Check if the model exists in its plural form
-    if (strapi.models[`${baseName}s`]) {
+    if (strapi.contentTypes [`${baseName}s`]) {
       return `${baseName}s`;
     }
     // Check if the model exists in its singular form
-    else if (strapi.models[baseName]) {
+    else if (strapi.contentTypes [baseName]) {
       return baseName;
     }
     // Handle other naming conventions or throw an error
@@ -53,11 +53,7 @@ module.exports = ({ strapi }) => ({
   },
   async getCollection(contentType) {
     const entries = await strapi.entityService.findMany(contentType, { populate: '*' });
-    console.log('----- STRAPI MODELS -----')
-    console.log(strapi.models)
-    console.log('----- ------------- -----')
-    const modelName = this.resolveModelName(contentType);
-    return entries.map(entry => sanitizeEntity(entry, { model: strapi.models[modelName] }));
+    return entries.map(entry => sanitizeEntity(entry, { model: strapi.getModel(contentType) }));
   },
   async createVotelog (payload) {
     try {
