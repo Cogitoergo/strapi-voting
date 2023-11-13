@@ -5,7 +5,6 @@ const { checkForExistingId } = require('./utils/functions')
 const { REGEX } = require('../utils/constants');
 const PluginError = require('./../utils/error');
 const { verifyRecaptcha } = require('./../utils/verifyRecaptcha');
-const { sanitizeEntity } = require('@strapi/utils');
 
 module.exports = ({ strapi }) => ({
   pluginService (name = 'common') {
@@ -33,27 +32,9 @@ module.exports = ({ strapi }) => ({
 
     return { collectionTypes, singleTypes } || null;
   },
-  resolveModelName(contentType) {
-    // Extract the base name from the contentType
-    let baseName = contentType.split("::")[1].split(".")[1];
-  
-    // Check if the model exists in its plural form
-    if (strapi.contentTypes [`${baseName}s`]) {
-      return `${baseName}s`;
-    }
-    // Check if the model exists in its singular form
-    else if (strapi.contentTypes [baseName]) {
-      return baseName;
-    }
-    // Handle other naming conventions or throw an error
-    else {
-      // Handle error or implement additional checks
-      throw new Error(`Model for content type ${contentType} not found`);
-    }
-  },
   async getCollection(contentType) {
-    const entries = await strapi.entityService.findMany(contentType, { populate: '*' });
-    return entries.map(entry => sanitizeEntity(entry, { model: strapi.getModel(contentType) }));
+    const entries = await strapi.entityService.findMany(contentType, { populate: '*' })
+    return entries
   },
   async createVotelog (payload) {
     try {

@@ -4,6 +4,9 @@ const {
   throwError,
 } = require('../utils/functions');
 
+const utils = require("@strapi/utils");
+const { sanitize } = utils;
+
 module.exports = {
   getService(name = 'voting') {
     return getPluginService(name)
@@ -19,9 +22,12 @@ module.exports = {
   },
   async getCollection(ctx) {
     const { id } = ctx.params
+    const schema = strapi.getModel(id);
+    const { auth } = ctx.state;
     console.log('[CONTROLLERS] Strapi-Voting: getCollection', id)
-    ctx.body = await this.getService()
+    const entries = await this.getService()
       .getCollection(id)
+    ctx.body = sanitize.contentAPI.output(entries, schema, { auth });
   },
   async vote(ctx) {
     const { request, params = {}, state = {} } = ctx;
