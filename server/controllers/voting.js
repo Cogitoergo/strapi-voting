@@ -21,13 +21,21 @@ module.exports = {
       .fetchContentTypesFields(model)
   },
   async getCollection(ctx) {
-    const { id } = ctx.params
+    const { id } = ctx.params;
     const schema = strapi.getModel(id);
     const { auth } = ctx.state;
-    console.log('[CONTROLLERS] Strapi-Voting: getCollection', id)
-    const entries = await this.getService()
-      .getCollection(id)
+  
+    console.log('ID:', id);
+    console.log('Schema:', schema);
+    console.log('Auth:', auth);
+  
+    const entries = await this.getService().getCollection(id);
+  
+    console.log('Entries before sanitization:', entries);
+  
     ctx.body = sanitize.contentAPI.output(entries, schema, { auth });
+  
+    console.log('Response:', ctx.body);
   },
   async vote(ctx) {
     const { request, params = {}, state = {} } = ctx;
