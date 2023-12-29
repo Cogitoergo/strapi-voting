@@ -5,7 +5,7 @@ const { checkForExistingId } = require('./utils/functions')
 const { REGEX } = require('../utils/constants');
 const PluginError = require('./../utils/error');
 const { verifyRecaptcha } = require('./../utils/verifyRecaptcha');
-
+const crypto = require('crypto');
 module.exports = ({ strapi }) => ({
   pluginService (name = 'common') {
     return getPluginService(name)
@@ -32,6 +32,24 @@ module.exports = ({ strapi }) => ({
 
     return { collectionTypes, singleTypes } || null;
   },
+
+  // Send email confirmation
+  async sendConfirmationEmail (email, collectionName, entryId) {
+    // Check if params provided
+    if (!email || !collectionName || !entryId) {
+      throw new PluginError(400, 'Email, collectionName and entryId are required.');
+    };
+    console.log(`[SERVICES]-[sendConfirmationEmail] Sending email confirmation to <${email}> for entry <${entryId}> in collection <${collectionName}>`);
+    // Generate confirmation token
+    const confirmationToken = crypto.randomBytes(20).toString('hex');
+    // Update entry with the generated token
+    await strapi.entityService.update(collectionName, entryId, {
+      data: { confirmationToken }
+    });
+    // Send email confirmation
+    
+  },
+
   async getCollection(contentType) {
     const entries = await strapi.entityService.findMany(contentType, { populate: '*' })
     return entries

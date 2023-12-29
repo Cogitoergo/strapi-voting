@@ -9,6 +9,9 @@ module.exports = {
     votingPeriods: {},
     googleRecaptcha: {
       '*': false
+    },
+    sendEmailConfirmation: {
+      '*': false
     }
   },
   validator() {},

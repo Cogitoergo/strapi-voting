@@ -50,7 +50,7 @@ const Settings = () => {
   const isLoading = isConfigLoading || areCollectionsLoading;
 	const isError = configErr || collectionsErr;
 
-  const preparePayload = ({ enabledCollections, votingPeriods, entryLabel, googleRecaptcha, ...rest }) => {
+  const preparePayload = ({ enabledCollections, votingPeriods, entryLabel, googleRecaptcha, confirmationToken, ...rest }) => {
 		const payload = {
       ...rest,
       enabledCollections: enabledCollections,
@@ -67,6 +67,13 @@ const Settings = () => {
           [curr]: enabledCollections.includes(curr) ? googleRecaptcha[curr] : undefined,
         }), {}),
         '*': googleRecaptcha['*'],
+      },
+      confirmationToken: {
+        ...Object.keys(confirmationToken).reduce((prev, curr) => ({
+          ...prev,
+          [curr]: enabledCollections.includes(curr) ? confirmationToken[curr] : undefined,
+        }), {}),
+        '*': confirmationToken['*'],
       },
       votingPeriods: {
         ...Object.keys(votingPeriods).reduce((prev, curr) => ({
@@ -113,6 +120,7 @@ const Settings = () => {
   const entryLabel = configData.entryLabel || {};
   const votingPeriods = configData.votingPeriods || {};
   const googleRecaptcha = configData.googleRecaptcha || {};
+  const confirmationToken = configData.confirmationToken || {};
 
   const handleUpdateConfiguration = async (form) => {
 
@@ -123,8 +131,9 @@ const Settings = () => {
     const enabledCollectionsChanged = !isEqual(payload.enabledCollections, configData?.enabledCollections);
     const votingPeriodsChanged = !isEqual(payload.votingPeriods, configData?.votingPeriods);
     const googleRecaptchaChanged = !isEqual(payload.googleRecaptcha, configData?.googleRecaptcha);
+    const confirmationTokenChanged = !isEqual(payload.confirmationToken, configData?.confirmationToken);
 
-    if (enabledCollectionsChanged || votingPeriodsChanged || googleRecaptchaChanged) {
+    if (enabledCollectionsChanged || votingPeriodsChanged || googleRecaptchaChanged || confirmationTokenChanged) {
       setRestartRequired(true);
     }
 
@@ -190,6 +199,14 @@ const Settings = () => {
     return temp;
 	};
 
+  const changeConfirmationTokenFor = (uid, current, value) => {
+		const temp = {
+      ...current,
+		  [uid]: value ? value : false,
+    };
+    return temp;
+	};
+
   const changeVotingPeriodFor = (uid, current, value, type) => {
     const dateObj = current[uid] || {};
     const date = value;
@@ -219,7 +236,8 @@ const Settings = () => {
 					enabledCollections,
 					entryLabel,
           votingPeriods,
-          googleRecaptcha
+          googleRecaptcha,
+          confirmationToken
 				}}
 				enableReinitialize={true}
 				onSubmit={handleUpdateConfiguration}
@@ -375,6 +393,16 @@ const Settings = () => {
                                             onChange={(value) => setFieldValue('googleRecaptcha', changeRecaptchaFor(collection, values.googleRecaptcha, value.target.checked))}
                                           >
                                             Google Recaptcha
+                                          </Checkbox>
+                                        </GridItem>
+                                        <GridItem col={4}>
+                                          <Checkbox
+                                            label="Enables email confirmation on form submit"
+                                            hint="Must set confirmationToken field for entries in content-type builder"
+                                            value={values.confirmationToken && values.confirmationToken[collection] || false}
+                                            onChange={(value) => setFieldValue('confirmationToken', changeConfirmationTokenFor(collection, values.confirmationToken, value.target.checked))}
+                                          >
+                                            Send email confirmation
                                           </Checkbox>
                                         </GridItem>
                                       </Grid>
