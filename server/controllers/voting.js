@@ -54,5 +54,16 @@ module.exports = {
     } catch (e) {
       throwError(ctx, e);
     }
+  },
+  async confirmEmail (ctx) {
+    const { confirmationToken, collectionName } = ctx.params
+    try {
+      const confirmedEntry = await this.getService().confirmEmail(confirmationToken, collectionName)
+      if (confirmedEntry) {
+        ctx.redirect('https://projektas.lrytas.lt/svietimo-kodas-2024/registracija/patvirtinimas');
+      }
+    } catch (e) {
+      throwError(ctx, e);
+    }
   }
 }

@@ -34,7 +34,7 @@ module.exports = ({ strapi }) => ({
   },
 
   // Send email confirmation
-  async sendConfirmationEmail (email, collectionName, entryId) {
+  async sendConfirmationEmail (email, collectionName, entryId, projectName = '') {
     // Check if params provided
     if (!email || !collectionName || !entryId) {
       throw new PluginError(400, 'Email, collectionName and entryId are required.');
@@ -46,8 +46,64 @@ module.exports = ({ strapi }) => ({
     await strapi.entityService.update(collectionName, entryId, {
       data: { confirmationToken }
     });
-    // Send email confirmation
-    
+    // Prepare confirmation url and project name
+    const confirmationUrl = `https://api.lrytas.lt/balsavimai/email-confirmation/${collectionName}/${entryId}`
+    // Send confirmation email
+    try {
+      await strapi
+      .plugin('email')
+      .service('email')
+      .send({
+        template_id: ['d-73f06f7ca1af4f348413a922416a77c8'],
+        personalizations: [
+          {
+            from: `Lrytas.lt <pagalba@lrytas.lt>`,
+            replyTo: 'pagalba@lrytas.lt',
+            subject: 'Registracijos patvirtinimas',
+            to: [
+              {
+                email: email
+              }
+            ],
+            dynamic_template_data: {
+              url: confirmationUrl,
+              title: projectName
+            }
+          }
+        ],
+        to: user.email,
+        from: `Lrytas.lt <pagalba@lrytas.lt>`,
+        replyTo: 'pagalba@lrytas.lt',
+        subject: 'Registracijos patvirtinimas'
+      });
+      console.log(`[SERVICES]-[sendConfirmationEmail] Sending email confirmation to <${email}> for entry <${entryId}> in collection <${collectionName}> was SUCCESSFUL!`);
+    } catch (e) {
+      console.log(`[SERVICES]-[sendConfirmationEmail] Sending email confirmation to <${email}> for entry <${entryId}> in collection <${collectionName}> FAILED`);
+      console.log(e.message)
+    }
+  },
+
+  async confirmEmail (confirmationToken, collectionName) {
+    // Check if params provided
+    if (!confirmationToken || !collectionName) {
+      throw new PluginError(400, 'Confirmation token and collectionName are required.');
+    };
+    console.log(`[SERVICES]-[confirmEmail] Confirming email with token <${confirmationToken}> in collection <${collectionName}>`);
+    const entry = await strapi.db.query(collectionName).findOne({
+      where: { confirmationToken }
+    })
+    if (!entry) {
+      throw new PluginError(400, 'Failed to confirm, entry not found', entry);
+    }
+    console.log(`[SERVICES]-[confirmEmail] Updating confirmed entry ID: <${entry.id}> in collection <${collectionName}>`);
+    const updatedEntry = await strapi.entityService.update(collectionName, entry.id, {
+      data: { confirmationToken: null, emailConfirmed: true }
+    });
+    if (!updatedEntry) {
+      throw new PluginError(400, 'Failed to confirm, updating entry failed', updatedEntry);
+    }
+    console.log(`[SERVICES]-[confirmEmail] Email for entry ID: <${entry.id}> in collection <${collectionName}> confirmed successfuly!`);
+    return updatedEntry
   },
 
   async getCollection(contentType) {
