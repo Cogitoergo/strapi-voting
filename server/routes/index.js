@@ -11,6 +11,15 @@ module.exports = [
   },
   {
     method: "GET",
+    path: "/email-confirmation/:collectionName/:confirmationToken",
+    handler: "voting.confirmEmail",
+    config: {
+      auth: false,
+      policies: [],
+    },
+  },
+  {
+    method: "GET",
     path: "/content-types-fields/:model",
     handler: "voting.getContentTypesFields",
     config: {

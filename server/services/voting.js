@@ -47,7 +47,7 @@ module.exports = ({ strapi }) => ({
       data: { confirmationToken }
     });
     // Prepare confirmation url and project name
-    const confirmationUrl = `https://api.lrytas.lt/balsavimai/email-confirmation/${collectionName}/${entryId}`
+    const confirmationUrl = `https://api.lrytas.lt/balsavimai/voting/email-confirmation/${collectionName}/${confirmationToken}`
     // Send confirmation email
     try {
       await strapi
