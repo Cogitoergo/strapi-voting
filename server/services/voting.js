@@ -54,7 +54,7 @@ module.exports = ({ strapi }) => ({
       .plugin('email')
       .service('email')
       .send({
-        template_id: ['d-73f06f7ca1af4f348413a922416a77c8'],
+        template_id: 'd-73f06f7ca1af4f348413a922416a77c8',
         personalizations: [
           {
             from: `Lrytas.lt <pagalba@lrytas.lt>`,
