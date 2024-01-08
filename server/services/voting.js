@@ -71,7 +71,7 @@ module.exports = ({ strapi }) => ({
             }
           }
         ],
-        to: user.email,
+        to: email,
         from: `Lrytas.lt <pagalba@lrytas.lt>`,
         replyTo: 'pagalba@lrytas.lt',
         subject: 'Registracijos patvirtinimas'
