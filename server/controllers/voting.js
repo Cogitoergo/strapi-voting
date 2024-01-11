@@ -60,9 +60,13 @@ module.exports = {
     try {
       const confirmedEntry = await this.getService().confirmEmail(confirmationToken, collectionName)
       if (confirmedEntry) {
-        ctx.redirect('https://projektas.lrytas.lt/svietimo-kodas-2024/registracija/patvirtinimas');
+        if (collectionName === 'api::svietimo-kodas-registracija.svietimo-kodas-registracija') {
+          ctx.redirect('https://projektas.lrytas.lt/svietimo-kodas-2024/registracija/patvirtinimas');
+        } else {
+          ctx.redirect('https://projektas.lrytas.lt/svietimo-kodas-2024/registracija/el-pasto-patvirtinimas');
+        }
       }
-    } catch (e) {
+    } catch (e) { 
       throwError(ctx, e);
     }
   }
