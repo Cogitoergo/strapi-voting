@@ -97,7 +97,7 @@ module.exports = ({ strapi }) => ({
     }
     console.log(`[SERVICES]-[confirmEmail] Updating confirmed entry ID: <${entry.id}> in collection <${collectionName}>`);
     const updatedEntry = await strapi.entityService.update(collectionName, entry.id, {
-      data: { confirmationToken: null, emailConfirmed: true }
+      data: { emailConfirmed: true }
     });
     if (!updatedEntry) {
       throw new PluginError(400, 'Failed to confirm, updating entry failed', updatedEntry);
