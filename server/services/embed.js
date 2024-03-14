@@ -21,11 +21,14 @@ module.exports = ({ strapi }) => ({
           photo: true
         }
       });
+
       if (!entry) {
         throw new Error('Entry not found');
       }
 
       console.log('[mergeWithFrame] found entry:', entry)
+
+      const entryTitle = entry.name || entry.title || 'Vardenis Pavardenis'
 
       // Retrieve photo path from the entry
       const photoPath = 'public' + entry[photoFieldName].url;
@@ -54,6 +57,17 @@ module.exports = ({ strapi }) => ({
 
       // Composite entry image onto frame
       frameImage.composite(resizedPhoto, 0, 0);
+
+      const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+      const maxWidth = 600; // Width of the right side
+      const lineHeight = Jimp.measureTextHeight(font, entryTitle, maxWidth);
+      const textX = frameImage.bitmap.width - maxWidth; // Right side
+      const textY = (frameImage.bitmap.height - lineHeight) / 2; // Center vertically
+      frameImage.print(font, textX, textY, {
+        text: entryTitle,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
+      }, maxWidth);
 
       // Save the merged image
       const mergedImagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
