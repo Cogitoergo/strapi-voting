@@ -1,8 +1,9 @@
-const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 
 module.exports = ({ strapi }) => ({
+
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
     try {
       // Check if the image already exists
