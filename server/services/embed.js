@@ -31,7 +31,7 @@ module.exports = ({ strapi }) => ({
       const entryTitle = entry.name || entry.title || 'Vardenis Pavardenis'
 
       // Retrieve photo path from the entry
-      const photoPath = 'public' + entry[photoFieldName].url;
+      const photoPath = 'public' + entry[photoFieldName] ? entry[photoFieldName].url : null;
       if (!photoPath) {
         throw new Error('Photo path not found in the entry');
       }
@@ -58,13 +58,27 @@ module.exports = ({ strapi }) => ({
       // Composite entry image onto frame
       frameImage.composite(resizedPhoto, 0, 0);
 
-      const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+      // Split the title into two lines if it contains two words
+      const titleParts = entryTitle.split(' ');
+      const firstLine = titleParts[0];
+      const secondLine = titleParts.slice(1).join(' ');
+
+      // Add text on the right side
+      const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK); // Load black font
       const maxWidth = 600; // Width of the right side
       const lineHeight = Jimp.measureTextHeight(font, entryTitle, maxWidth);
       const textX = frameImage.bitmap.width - maxWidth; // Right side
       const textY = (frameImage.bitmap.height - lineHeight) / 2; // Center vertically
+
+      // Print each part of the title on a separate line
       frameImage.print(font, textX, textY, {
-        text: entryTitle,
+        text: firstLine,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
+      }, maxWidth);
+
+      frameImage.print(font, textX, textY + 1.5 * lineHeight, { // Offset by 1.5 line height for the second line
+        text: secondLine,
         alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
         alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
       }, maxWidth);
