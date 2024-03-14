@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-voting",
-  "version": "1.0.65",
+  "version": "1.0.66",
   "description": "Add a simple voting system to any Strapi collection type.",
   "strapi": {
     "name": "voting",
@@ -13,9 +13,9 @@
     "formik": "^2.2.9",
     "geoip-lite": "^1.4.5",
     "murmurhash3js": "^3.0.1",
-    "sharp": "^0.33.2",
     "traverse": "^0.6.6",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "sharp": "0.32.1"
   },
   "author": "Karolis Stakėnas <karolis.stakenas@gmail.com>",
   "maintainers": [
