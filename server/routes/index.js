@@ -83,5 +83,15 @@ module.exports = [
       auth: false,
       policies: [],
     },
+  },
+  // Embeds
+  {
+    method: 'GET',
+    path: '/public/embeds/:collectionName/:entryId.png',
+    handler: 'embed.findEmbed',
+    config: {
+      auth: false,
+      policies: [],
+    },
   }
 ];
