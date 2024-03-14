@@ -17,7 +17,9 @@ module.exports = ({ strapi }) => ({
         where: {
           id: entryId
         },
-        populate: 'photo'
+        populate: {
+          photo: true
+        }
       });
       if (!entry) {
         throw new Error('Entry not found');
