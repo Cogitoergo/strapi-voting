@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Jimp = require('jimp');
+const webpConverter = require('webp-converter');
 
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
