@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
+const Jimp = require('jimp');
 
 module.exports = ({ strapi }) => ({
 
@@ -30,25 +30,21 @@ module.exports = ({ strapi }) => ({
         throw new Error('Premade frame photo not found');
       }
 
-      // Load images
-      const frameImage = sharp(framePath);
-      const entryImage = sharp(photoPath);
+      // Read and manipulate images with Jimp
+      const frameImage = await Jimp.read(framePath);
+      const entryImage = await Jimp.read(photoPath);
 
-      // Merge images
-      const mergedImage = await sharp({
-        create: {
-          width: 1200, // Adjust the width and height according to your requirements
-          height: 630,
-          channels: 4, // RGBA
-          background: { r: 255, g: 255, b: 255, alpha: 0 } // Transparent background
-        }
-      })
-      .composite([
-        { input: await frameImage.toBuffer(), gravity: 'northwest' },
-        { input: await entryImage.resize({ width: 600 }).toBuffer(), gravity: 'northwest' }
-      ])
-      .toFormat('png')
-      .toFile(path.join(strapi.config.paths.public, 'embeds', collectionName, `${entryId}.png`));
+      // Resize entry image if needed
+      if (entryImage.bitmap.width !== frameImage.bitmap.width / 2 || entryImage.bitmap.height !== frameImage.bitmap.height) {
+        entryImage.resize(frameImage.bitmap.width / 2, frameImage.bitmap.height);
+      }
+
+      // Composite entry image onto frame
+      frameImage.composite(entryImage, 0, 0);
+
+      // Save the merged image
+      const mergedImagePath = path.join(strapi.config.paths.public, 'embeds', collectionName, `${entryId}.png`);
+      await frameImage.writeAsync(mergedImagePath);
 
       // Construct absolute URL to the merged image
       const publicUrl = `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
