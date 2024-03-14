@@ -63,8 +63,10 @@ module.exports = ({ strapi }) => ({
       const firstLine = titleParts[0];
       const secondLine = titleParts.slice(1).join(' ');
 
+      const fontPath = path.join(strapi.config.server.dirs.public, 'fonts', 'FrankRuhlLibre-Regular.ttf');
+      const font = await Jimp.loadFont(fontPath);
+
       // Add text on the right side
-      const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK); // Load black font
       const maxWidth = 600; // Width of the right side
       const lineHeight = Jimp.measureTextHeight(font, entryTitle, maxWidth);
       const textX = frameImage.bitmap.width - maxWidth; // Right side
