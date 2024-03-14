@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const Jimp = require('jimp');
-const webpConverter = require('webp-converter');
 
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
@@ -33,7 +32,6 @@ module.exports = ({ strapi }) => ({
 
       // Retrieve photo path from the entry
       const photoPath = entry[photoFieldName] ? 'public' + entry[photoFieldName].url : null;
-
       if (!photoPath) {
         throw new Error('Photo path not found in the entry');
       }
@@ -50,19 +48,9 @@ module.exports = ({ strapi }) => ({
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
-      const photoExtension = path.extname(photoPath).toLowerCase();
+      const entryImage = await Jimp.read(photoPath);
 
-      let photoPathConverted;
-      if (photoExtension === '.webp') {
-        const outputDir = path.join(strapi.config.server.dirs.public, 'temp', `${entryId}.png`);
-        await webpConverter.dwebp(photoPath, outputDir,"-o",logging="-v");
-      } else {
-        photoPathConverted = photoPath;
-      }
-
-      const entryImage = await Jimp.read(photoPathConverted);
-
-      console.log('[mergeWithFrame] reading images successful', entryImage);
+      console.log('[mergeWithFrame] reading images successful');
 
       // Resize entry image if needed
       const resizedPhoto = entryImage.cover(600, 630, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_TOP);
