@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-voting",
-  "version": "1.0.62",
+  "version": "1.0.63",
   "description": "Add a simple voting system to any Strapi collection type.",
   "strapi": {
     "name": "voting",
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "axios": "^0.27.1",
-    "canvas": "^2.11.2",
     "formik": "^2.2.9",
     "geoip-lite": "^1.4.5",
     "murmurhash3js": "^3.0.1",
