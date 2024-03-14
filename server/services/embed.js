@@ -51,12 +51,11 @@ module.exports = ({ strapi }) => ({
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
       const photoExtension = path.extname(photoPath).toLowerCase();
-      
+
       let photoPathConverted;
       if (photoExtension === '.webp') {
-        const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
-        photoPathConverted = path.join(outputDir, `${entryId}.png`);
-        await webpConverter.dwebp(photoPath, photoPathConverted, '-o', outputDir);
+        const outputDir = path.join(strapi.config.server.dirs.public, 'temp', `${entryId}.png`);
+        await webpConverter.dwebp(photoPath, outputDir);
       } else {
         photoPathConverted = photoPath;
       }
