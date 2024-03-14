@@ -5,7 +5,6 @@ const Jimp = require('jimp');
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
     console.log('[mergeWithFrame] Service', entryId, photoFieldName, collectionName)
-    console.log(strapi.config)
     try {
       // Check if the image already exists
       const existingImagePath = this.getExistingImagePath(entryId, collectionName);
@@ -18,6 +17,8 @@ module.exports = ({ strapi }) => ({
       if (!entry) {
         throw new Error('Entry not found');
       }
+
+      console.log('[mergeWithFrame] found entry:', entry)
 
       // Retrieve photo path from the entry
       const photoPath = entry[photoFieldName];
