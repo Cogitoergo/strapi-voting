@@ -50,12 +50,10 @@ module.exports = ({ strapi }) => ({
       console.log('[mergeWithFrame] reading images successful');
 
       // Resize entry image if needed
-      if (entryImage.bitmap.width !== frameImage.bitmap.width / 2 || entryImage.bitmap.height !== frameImage.bitmap.height) {
-        entryImage.resize(frameImage.bitmap.width / 2, frameImage.bitmap.height);
-      }
+      const resizedPhoto = entryImage.cover(600, 630, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_TOP);
 
       // Composite entry image onto frame
-      frameImage.composite(entryImage, 0, 0);
+      frameImage.composite(resizedPhoto, 0, 0);
 
       // Save the merged image
       const mergedImagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
