@@ -31,7 +31,7 @@ module.exports = ({ strapi }) => ({
       const entryTitle = entry.name || entry.title || 'Vardenis Pavardenis'
 
       // Retrieve photo path from the entry
-      const photoPath = 'public' + entry[photoFieldName] ? entry[photoFieldName].url : null;
+      const photoPath = entry[photoFieldName] ? 'public' + entry[photoFieldName].url : null;
       if (!photoPath) {
         throw new Error('Photo path not found in the entry');
       }
