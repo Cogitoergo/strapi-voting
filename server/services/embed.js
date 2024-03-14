@@ -13,7 +13,12 @@ module.exports = ({ strapi }) => ({
       }
 
       // Fetch the entry by ID
-      const entry = await strapi.query(collectionName).findOne({ id: entryId });
+      const entry = await strapi.query(collectionName).findOne({
+        where: {
+          id: entryId
+        },
+        populate: 'photo'
+      });
       if (!entry) {
         throw new Error('Entry not found');
       }
@@ -26,11 +31,15 @@ module.exports = ({ strapi }) => ({
         throw new Error('Photo path not found in the entry');
       }
 
+      console.log('[mergeWithFrame] found photo:', photoPath)
+
       // Load premade photo frame from embed_templates
       const framePath = path.join(strapi.config.server.dirs.public, 'embed_templates', `${collectionName}.png`);
       if (!fs.existsSync(framePath)) {
         throw new Error('Premade frame photo not found');
       }
+
+      console.log('[mergeWithFrame] got frame path:', framePath)
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
