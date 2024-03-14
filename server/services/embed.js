@@ -48,7 +48,20 @@ module.exports = ({ strapi }) => ({
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
-      const entryImage = await Jimp.read(photoPath);
+      let entryImage = null
+
+      const photoExtension = path.extname(photoPath).toLowerCase();
+      
+      if (photoExtension === '.jpg' || photoExtension === '.jpeg' || photoExtension === '.png') {
+        entryImage = await Jimp.read(photoPath);
+      } else if (photoExtension === '.webp') {
+        // Handle WebP images by converting them to PNG
+        const tempImagePath = path.join(strapi.config.server.dirs.public, 'temp', `${entryId}.png`);
+        await Jimp.read(photoPath).then(image => image.write(tempImagePath));
+        entryImage = await Jimp.read(tempImagePath);
+      } else {
+        throw new Error('Unsupported image format');
+      }
 
       console.log('[mergeWithFrame] reading images successful');
 
