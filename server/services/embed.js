@@ -68,18 +68,20 @@ module.exports = ({ strapi }) => ({
 
       // Add text on the right side
       const maxWidth = 600; // Width of the right side
-      const lineHeight = Jimp.measureTextHeight(font, entryTitle, maxWidth);
+      const lineHeight = Jimp.measureTextHeight(font, title, maxWidth);
       const textX = frameImage.bitmap.width - maxWidth; // Right side
-      const textY = (frameImage.bitmap.height - lineHeight) / 2; // Center vertically
+      const textY = (frameImage.bitmap.height - lineHeight) / 2 - 5; // Adjust vertical alignment by subtracting 5 pixels
 
-      // Print each part of the title on a separate line
+      // Print each part of the title on a separate line with the custom font
       frameImage.print(font, textX, textY, {
         text: firstLine,
         alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
         alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
       }, maxWidth);
 
-      frameImage.print(font, textX, textY + 1.5 * lineHeight, { // Offset by 1.5 line height for the second line
+      // Reduce the gap between lines by 15%
+      const lineHeightAdjusted = lineHeight * 0.85;
+      frameImage.print(font, textX, textY + lineHeightAdjusted, { // Offset by the adjusted line height for the second line
         text: secondLine,
         alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
         alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
