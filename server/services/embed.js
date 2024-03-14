@@ -62,7 +62,7 @@ module.exports = ({ strapi }) => ({
       await frameImage.writeAsync(mergedImagePath);
 
       // Construct absolute URL to the merged image
-      const publicUrl = `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
+      const publicUrl = `${strapi.config.server.url}/embeds/${collectionName}/${entryId}.png`;
 
       return publicUrl;
     } catch (error) {
@@ -76,7 +76,7 @@ module.exports = ({ strapi }) => ({
     const imagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
     if (fs.existsSync(imagePath)) {
       console.log('PATH EXISTS', imagePath)
-      return `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
+      return `${strapi.config.server.url}/embeds/${collectionName}/${entryId}.png`;
     }
     return null;
   },
