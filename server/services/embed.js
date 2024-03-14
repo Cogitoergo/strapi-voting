@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Jimp = require('jimp');
 const webpConverter = require('webp-converter');
+webp.grant_permission();
 
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
@@ -58,7 +59,7 @@ module.exports = ({ strapi }) => ({
       if (photoExtension === '.webp') {
         const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
         photoPathConverted = path.join(outputDir, `${entryId}.png`);
-        await webpConverter.dwebp(photoPath,'-o',photoPathConverted);
+        await webpConverter.dwebp(photoPath, photoPathConverted, "-o", logging="-v");
       } else {
         photoPathConverted = photoPath;
       }
