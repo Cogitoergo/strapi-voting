@@ -26,7 +26,7 @@ module.exports = ({ strapi }) => ({
       }
 
       // Load premade photo frame from embed_templates
-      const framePath = path.join(strapi.config.dirs.public, 'embed_templates', `${collectionName}.png`);
+      const framePath = path.join(strapi.config.server.dirs.public, 'embed_templates', `${collectionName}.png`);
       if (!fs.existsSync(framePath)) {
         throw new Error('Premade frame photo not found');
       }
@@ -44,7 +44,7 @@ module.exports = ({ strapi }) => ({
       frameImage.composite(entryImage, 0, 0);
 
       // Save the merged image
-      const mergedImagePath = path.join(strapi.config.dirs.public, 'embeds', collectionName, `${entryId}.png`);
+      const mergedImagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
       await frameImage.writeAsync(mergedImagePath);
 
       // Construct absolute URL to the merged image
@@ -59,7 +59,7 @@ module.exports = ({ strapi }) => ({
   },
 
   getExistingImagePath(entryId, collectionName) {
-    const imagePath = path.join(strapi.config.dirs.public, 'embeds', collectionName, `${entryId}.png`);
+    const imagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
     if (fs.existsSync(imagePath)) {
       return `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
     }
