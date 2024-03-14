@@ -33,7 +33,7 @@ module.exports = ({ strapi }) => ({
         throw new Error('Photo path not found in the entry');
       }
 
-      console.log('[mergeWithFrame] found photo path:', photoPath)
+      console.log('[mergeWithFrame] found photo path:', photoPath);
 
       // Load premade photo frame from embed_templates
       const framePath = path.join(strapi.config.server.dirs.public, 'embed_templates', `${collectionName}.png`);
@@ -41,11 +41,13 @@ module.exports = ({ strapi }) => ({
         throw new Error('Premade frame photo not found');
       }
 
-      console.log('[mergeWithFrame] got frame path:', framePath)
+      console.log('[mergeWithFrame] got frame path:', framePath);
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
       const entryImage = await Jimp.read(photoPath);
+
+      console.log('[mergeWithFrame] reading images successful');
 
       // Resize entry image if needed
       if (entryImage.bitmap.width !== frameImage.bitmap.width / 2 || entryImage.bitmap.height !== frameImage.bitmap.height) {
@@ -73,6 +75,7 @@ module.exports = ({ strapi }) => ({
   getExistingImagePath(entryId, collectionName) {
     const imagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
     if (fs.existsSync(imagePath)) {
+      console.log('PATH EXISTS', imagePath)
       return `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
     }
     return null;
