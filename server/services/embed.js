@@ -65,7 +65,7 @@ module.exports = ({ strapi }) => ({
 
       // Check if the converted file exists
       if (!fs.existsSync(photoPathConverted)) {
-        throw new Error('Converted file does not exist');
+        throw new Error(`Converted file does not exist ${photoPathConverted}`);
       }
 
       // Load the photo
@@ -111,9 +111,9 @@ module.exports = ({ strapi }) => ({
       await frameImage.writeAsync(mergedImagePath);
 
       // Construct absolute URL to the merged image
-      const publicUrl = `${strapi.config.server.url}/embeds/${collectionName}/${entryId}.png`;
+      // const publicUrl = `${strapi.config.server.url}/embeds/${collectionName}/${entryId}.png`;
 
-      return publicUrl;
+      return mergedImagePath;
     } catch (error) {
       // Handle errors
       console.error(error);

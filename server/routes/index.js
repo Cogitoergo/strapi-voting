@@ -87,7 +87,7 @@ module.exports = [
   // Embeds
   {
     method: 'GET',
-    path: '/embeds/:collectionName/:entryId',
+    path: '/embeds/:collectionName/:entryId.png',
     handler: 'embed.findEmbed',
     config: {
       auth: false,
