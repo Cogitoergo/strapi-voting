@@ -63,7 +63,7 @@ module.exports = ({ strapi }) => ({
       const firstLine = titleParts[0];
       const secondLine = titleParts.slice(1).join(' ');
 
-      const fontPath = path.join(strapi.config.server.dirs.public, 'fonts', 'FrankRuhlLibre-VariableFont_wght.ttf');
+      const fontPath = path.join(strapi.config.server.dirs.public, 'fonts', 'FrankRuhlLibre-Regular.fnt);
       const font = await Jimp.loadFont(fontPath);
 
       // Add text on the right side
