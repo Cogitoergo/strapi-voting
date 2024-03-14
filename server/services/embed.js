@@ -125,7 +125,7 @@ module.exports = ({ strapi }) => ({
     const imagePath = path.join(strapi.config.server.dirs.public, 'embeds', collectionName, `${entryId}.png`);
     if (fs.existsSync(imagePath)) {
       console.log('PATH EXISTS', imagePath)
-      return `${strapi.config.server.url}/embeds/${collectionName}/${entryId}.png`;
+      return imagePath;
     }
     return null;
   },
