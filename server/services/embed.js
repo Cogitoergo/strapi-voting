@@ -28,12 +28,12 @@ module.exports = ({ strapi }) => ({
       console.log('[mergeWithFrame] found entry:', entry)
 
       // Retrieve photo path from the entry
-      const photoPath = entry[photoFieldName];
+      const photoPath = 'public' + entry[photoFieldName].url;
       if (!photoPath) {
         throw new Error('Photo path not found in the entry');
       }
 
-      console.log('[mergeWithFrame] found photo:', photoPath)
+      console.log('[mergeWithFrame] found photo path:', photoPath)
 
       // Load premade photo frame from embed_templates
       const framePath = path.join(strapi.config.server.dirs.public, 'embed_templates', `${collectionName}.png`);
