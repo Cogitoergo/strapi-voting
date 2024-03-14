@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-voting",
-  "version": "1.0.98",
+  "version": "1.0.99",
   "description": "Add a simple voting system to any Strapi collection type.",
   "strapi": {
     "name": "voting",

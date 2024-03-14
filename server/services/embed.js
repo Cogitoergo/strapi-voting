@@ -48,9 +48,27 @@ module.exports = ({ strapi }) => ({
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
-      const entryImage = await Jimp.read(photoPath);
 
       console.log('[mergeWithFrame] reading images successful');
+
+      // Convert WebP image to PNG format
+      const photoExtension = path.extname(photoPath).toLowerCase();
+      let photoPathConverted;
+      if (photoExtension === '.webp') {
+        const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
+        photoPathConverted = path.join(outputDir, `${entryId}.png`);
+        await webpConverter.dwebp(photoPath, photoPathConverted);
+      } else {
+        photoPathConverted = photoPath;
+      }
+
+      // Check if the converted file exists
+      if (!fs.existsSync(photoPathConverted)) {
+        throw new Error('Converted file does not exist');
+      }
+
+      // Load the photo
+      const entryImage = await Jimp.read(photoPathConverted);
 
       // Resize entry image if needed
       const resizedPhoto = entryImage.cover(600, 630, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_TOP);
