@@ -50,9 +50,8 @@ module.exports = ({ strapi }) => ({
 
       // Read and manipulate images with Jimp
       const frameImage = await Jimp.read(framePath);
-      let entryImage = null
-
       const photoExtension = path.extname(photoPath).toLowerCase();
+      
       let photoPathConverted;
       if (photoExtension === '.webp') {
         const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
