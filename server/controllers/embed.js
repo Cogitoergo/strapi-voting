@@ -1,3 +1,6 @@
+const {
+  getPluginService
+} = require('../utils/functions');
 module.exports = {
   getService(name = 'voting') {
     return getPluginService(name)
