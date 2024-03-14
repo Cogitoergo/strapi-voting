@@ -55,14 +55,14 @@ module.exports = ({ strapi }) => ({
       let photoPathConverted;
       if (photoExtension === '.webp') {
         const outputDir = path.join(strapi.config.server.dirs.public, 'temp', `${entryId}.png`);
-        await webpConverter.dwebp(photoPath, outputDir);
+        await webpConverter.dwebp(photoPath, outputDir,"-o",logging="-v");
       } else {
         photoPathConverted = photoPath;
       }
 
       const entryImage = await Jimp.read(photoPathConverted);
 
-      console.log('[mergeWithFrame] reading images successful');
+      console.log('[mergeWithFrame] reading images successful', entryImage);
 
       // Resize entry image if needed
       const resizedPhoto = entryImage.cover(600, 630, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_TOP);
