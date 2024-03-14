@@ -28,19 +28,26 @@ module.exports = ({ strapi }) => ({
       if (!fs.existsSync(framePath)) {
         throw new Error('Premade frame photo not found');
       }
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext('2d');
-      const frame = await loadImage(framePath);
-      ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
 
-      // Load entry photo and merge with frame
-      const entryPhoto = await loadImage(photoPath);
-      ctx.drawImage(entryPhoto, 0, 0, canvas.width / 2, canvas.height);
+      // Load images
+      const frameImage = sharp(framePath);
+      const entryImage = sharp(photoPath);
 
-      // Save the merged image
-      const mergedImagePath = path.join(strapi.config.paths.public, 'embeds', collectionName, `${entryId}.png`);
-      const mergedImageBuffer = canvas.toBuffer();
-      fs.writeFileSync(mergedImagePath, mergedImageBuffer);
+      // Merge images
+      const mergedImage = await sharp({
+        create: {
+          width: 1200, // Adjust the width and height according to your requirements
+          height: 630,
+          channels: 4, // RGBA
+          background: { r: 255, g: 255, b: 255, alpha: 0 } // Transparent background
+        }
+      })
+      .composite([
+        { input: await frameImage.toBuffer(), gravity: 'northwest' },
+        { input: await entryImage.resize({ width: 600 }).toBuffer(), gravity: 'northwest' }
+      ])
+      .toFormat('png')
+      .toFile(path.join(strapi.config.paths.public, 'embeds', collectionName, `${entryId}.png`));
 
       // Construct absolute URL to the merged image
       const publicUrl = `${strapi.config.server.url}/public/embeds/${collectionName}/${entryId}.png`;
