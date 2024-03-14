@@ -8,10 +8,10 @@ module.exports = {
   async findEmbed(ctx) {
     try {
       console.log('[FIND EMBED] CONTROLLER')
-      const mergeWithFrame = this.getService('embed');
+      const embedService = this.getService('embed');
       const { collectionName, entryId } = ctx.params;
       // Generate the merged embed photo using the photoMerge service
-      const imageUrl = await mergeWithFrame(entryId, 'photo', collectionName);
+      const imageUrl = await embedService.mergeWithFrame(entryId, 'photo', collectionName);
       // Redirect to the generated image URL
       ctx.redirect(imageUrl);
     } catch (error) {
