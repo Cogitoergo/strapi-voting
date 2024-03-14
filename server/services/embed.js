@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Jimp = require('jimp');
+const webpConverter = require('webp-converter');
 
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName) {
@@ -32,6 +33,7 @@ module.exports = ({ strapi }) => ({
 
       // Retrieve photo path from the entry
       const photoPath = entry[photoFieldName] ? 'public' + entry[photoFieldName].url : null;
+
       if (!photoPath) {
         throw new Error('Photo path not found in the entry');
       }
@@ -51,17 +53,16 @@ module.exports = ({ strapi }) => ({
       let entryImage = null
 
       const photoExtension = path.extname(photoPath).toLowerCase();
-      
-      if (photoExtension === '.jpg' || photoExtension === '.jpeg' || photoExtension === '.png') {
-        entryImage = await Jimp.read(photoPath);
-      } else if (photoExtension === '.webp') {
-        // Handle WebP images by converting them to PNG
-        const tempImagePath = path.join(strapi.config.server.dirs.public, 'temp', `${entryId}.png`);
-        await Jimp.read(photoPath).then(image => image.write(tempImagePath));
-        entryImage = await Jimp.read(tempImagePath);
+      let photoPathConverted;
+      if (photoExtension === '.webp') {
+        const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
+        photoPathConverted = path.join(outputDir, `${entryId}.png`);
+        await webpConverter.dwebp(photoPath, photoPathConverted, '-o', outputDir);
       } else {
-        throw new Error('Unsupported image format');
+        photoPathConverted = photoPath;
       }
+
+      const entryImage = await Jimp.read(photoPathConverted);
 
       console.log('[mergeWithFrame] reading images successful');
 
