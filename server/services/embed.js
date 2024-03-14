@@ -58,7 +58,7 @@ module.exports = ({ strapi }) => ({
       if (photoExtension === '.webp') {
         const outputDir = path.join(strapi.config.server.dirs.public, 'temp');
         photoPathConverted = path.join(outputDir, `${entryId}.png`);
-        await webpConverter.dwebp(photoPath, photoPathConverted);
+        await webpConverter.dwebp(photoPath,'-o',photoPathConverted);
       } else {
         photoPathConverted = photoPath;
       }
