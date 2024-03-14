@@ -68,7 +68,7 @@ module.exports = ({ strapi }) => ({
 
       // Add text on the right side
       const maxWidth = 600; // Width of the right side
-      const lineHeight = Jimp.measureTextHeight(font, title, maxWidth);
+      const lineHeight = Jimp.measureTextHeight(font, entryTitle, maxWidth);
       const textX = frameImage.bitmap.width - maxWidth; // Right side
       const textY = (frameImage.bitmap.height - lineHeight) / 2 - 5; // Adjust vertical alignment by subtracting 5 pixels
 
