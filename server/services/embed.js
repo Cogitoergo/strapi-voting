@@ -6,7 +6,7 @@ webpConverter.grant_permission();
 
 module.exports = ({ strapi }) => ({
   async mergeWithFrame(entryId, photoFieldName, collectionName, titleFieldName) {
-    console.log('[mergeWithFrame] Service', entryId, photoFieldName, collectionName)
+    console.log('[mergeWithFrame] Service', entryId, photoFieldName, collectionName, titleFieldName)
     try {
       // Check if the image already exists
       const existingImagePath = this.getExistingImagePath(entryId, collectionName);
@@ -19,9 +19,7 @@ module.exports = ({ strapi }) => ({
         where: {
           id: entryId
         },
-        populate: {
-          photo: true
-        }
+        populate: [photoFieldName]
       });
 
       if (!entry) {
