@@ -5,7 +5,7 @@ const webpConverter = require('webp-converter');
 webpConverter.grant_permission();
 
 module.exports = ({ strapi }) => ({
-  async mergeWithFrame(entryId, photoFieldName, collectionName) {
+  async mergeWithFrame(entryId, photoFieldName, collectionName, titleFieldName) {
     console.log('[mergeWithFrame] Service', entryId, photoFieldName, collectionName)
     try {
       // Check if the image already exists
@@ -30,7 +30,7 @@ module.exports = ({ strapi }) => ({
 
       console.log('[mergeWithFrame] found entry:', entry)
 
-      const entryTitle = entry.name || entry.title || 'Vardenis Pavardenis'
+      const entryTitle = entry[titleFieldName] || entry.name || entry.title
 
       // Retrieve photo path from the entry
       const photoPath = entry[photoFieldName] ? 'public' + entry[photoFieldName].url : null;

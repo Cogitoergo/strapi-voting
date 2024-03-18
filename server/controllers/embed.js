@@ -11,8 +11,10 @@ module.exports = {
       console.log('[FIND EMBED] CONTROLLER')
       const embedService = this.getService('embed');
       const { collectionName, entryId } = ctx.params;
+      const photoName = ctx.query.photoName
+      const titleName = ctx.query.titleName
       // Generate the merged embed photo using the photoMerge service
-      const imagePath = await embedService.mergeWithFrame(entryId, 'photo', collectionName);
+      const imagePath = await embedService.mergeWithFrame(entryId, photoName ? photoName : 'photo', collectionName, titleName);
       // Redirect to the generated image URL
       // Read the image file
       const imageStream = fs.createReadStream(imagePath);
