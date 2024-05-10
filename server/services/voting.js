@@ -136,16 +136,7 @@ module.exports = ({ strapi }) => ({
     try {
       const user = await strapi.entityService.findMany('plugin::voting.vote', {
         filters: { iphash },
-        populate: {
-          votes: {
-            publicationState: 'live',
-            filters: {
-              publishedAt: {
-                $notNull: true
-              },
-            },
-          }
-        }
+        populate: ['votes']
       });
       if (user) {
         console.log('[VOTING] User found..', user)
