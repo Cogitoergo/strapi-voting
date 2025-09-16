@@ -244,160 +244,152 @@ module.exports = ({ strapi }) => ({
 
   async vote(relation, data, user = null, fingerprint = {}) {
     const config = await this.pluginService().getConfig('googleRecaptcha');
-    const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
-    
-    // Parse data (only for recaptcha token now, not for group)
-    const dataJson = JSON.parse(data)
-    
-    // Google Recaptcha
-    const recaptchaEnabled = config[uid] || false
+    const [uid, relatedId] = await this.pluginService().parseRelationString(relation);
+  
+    // Parse incoming data
+    const dataJson = JSON.parse(data);
+  
+    // Google Recaptcha check
+    const recaptchaEnabled = config[uid] || false;
     if (recaptchaEnabled) {
       if (!dataJson.recaptchaToken) {
         throw new PluginError(400, `Google Recaptcha enabled for the collection but no user captcha token present.`);
       }
-      const recaptchaResponse = await verifyRecaptcha(dataJson.recaptchaToken)
+      const recaptchaResponse = await verifyRecaptcha(dataJson.recaptchaToken);
       if (!recaptchaResponse || !recaptchaResponse.success) {
         throw new PluginError(400, `Google Recaptcha verification failed.`);
       }
     }
-    
+  
     // Fingerprinting
-    const ip = fingerprint.components.geoip.ip
-    const country = fingerprint.components.geoip.country
-    const userAgent = fingerprint.components.useragent.string
-    
+    const ip = fingerprint.components.geoip.ip;
+    const country = fingerprint.components.geoip.country;
+    const userAgent = fingerprint.components.useragent.string;
+  
     if (!ip || !country || !userAgent) {
-      throw new PluginError(400, `There has been an error parsing userAgent/IP strings. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
+      throw new PluginError(
+        400,
+        `There has been an error parsing userAgent/IP strings. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`
+      );
     } else {
       if (country !== 'LT' && country !== 'ADMIN') {
         throw new PluginError(400, `Voting is only possible from within Lithuania. IP: ${ip}, Country: ${country}, userAgent: ${userAgent}`);
       }
-      
-      const hash = fingerprint.hash
-      const iphash = ip.split(',')[0] + hash
-      
-      // Check for correct collection relation string in req
+  
+      const hash = fingerprint.hash;
+      const iphash = ip.split(',')[0] + hash;
+  
+      // Check if relation string format is valid
       const singleRelationFulfilled = relation && REGEX.relatedUid.test(relation);
       if (!singleRelationFulfilled) {
         throw new PluginError(400, `Field "related" got incorrect format, use format like "api::<collection name>.<content type name>:<entity id>"`);
       }
-      
-      // Find related entity by relation string - NOW INCLUDING GROUP FIELD
-      const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { 
-        fields: ['votes', 'group'] // Fetch group from the item itself
+  
+      // Dynamically check if 'group' field exists on content type
+      const contentTypeSchema = strapi.contentType(uid);
+      const hasGroupField = Object.prototype.hasOwnProperty.call(contentTypeSchema.attributes, 'group');
+  
+      const fieldsToSelect = ['votes'];
+      if (hasGroupField) fieldsToSelect.push('group');
+  
+      // Fetch related entity with safe field selection
+      const relatedEntity = await strapi.entityService.findOne(uid, relatedId, {
+        fields: fieldsToSelect,
       });
+  
       if (!relatedEntity) {
         throw new PluginError(400, `Relation for field "related" does not exist. Check your payload please.`);
       }
-      
-      // Get group from the entity, not from user data
-      const group = relatedEntity.group || null;
-      
-      // Check group vote restriction if item has a group
-      if (group) {
+  
+      const group = hasGroupField ? relatedEntity.group : null;
+  
+      // Check group vote restriction if applicable
+      if (hasGroupField && group) {
         const hasVotedInGroup = await this.checkGroupVoteRestriction(iphash, group);
         if (hasVotedInGroup) {
           throw new PluginError(403, `You have already voted for an item in group "${group}" within the time limit`);
         }
       }
-      
-      // If relation correct and entity found...
-      if (singleRelationFulfilled && relatedEntity) {
-        try {
-          // Try to find user
-          const votingUser = await this.findUser(iphash)
-          
-          if (votingUser) {
-            // If no group is specified on the item, check for any previous vote on this specific item
-            if (!group) {
-              const votedBefore = checkForExistingId(votingUser.votes, relation)
-              if (votedBefore) {
-                throw new PluginError(403, `Already voted for ${relation}`);
-              }
-            }
-            // If group is specified, the group check was already done above
-            
-            const votes = await relatedEntity.votes + 1
-            const voted = await this.doVoting(uid, relatedEntity.id, votes)
-            
-            if (voted) {
-              const payload = {
-                ip: ip,
-                iphash: iphash,
-                related: relation,
-                group: group, // Group from the item
-                country,
-                userAgent,
-                user: votingUser.id,
-                voteId: String(relatedId),
-                votedAt: new Date()
-              }
-              
-              const voteLog = await this.createVotelog(payload)
-              if (voteLog) {
-                const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
-                const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
-                if (updatedUser && voted) {
-                  console.log('[VOTING] Voting finished successfuly' + (group ? ` for item in group: ${group}` : ' for ungrouped item'))
-                  return voted
-                } else {
-                  console.log('[VOTING] Voting did not successfuly finished, error updating user')
-                }
-              } else {
-                console.log('[VOTING] VoteLog creation failed, aborting..')
-              }
-            } else {
-              console.log('[VOTING] Voting failed, aborting..')
-            }
-            return { test: 'test' }
-          } else {
-            // Create new user
-            console.log('[VOTING] User not found, creating one..')
-            const votingUserNew = await this.createNewUser(ip, iphash)
-            
-            if (votingUserNew) {
-              console.log('[VOTING] New user created:', votingUserNew)
-              const votes = await relatedEntity.votes + 1
-              const voted = await this.doVoting(uid, relatedEntity.id, votes)
-              
-              if (voted) {
-                const payload = {
-                  ip: ip,
-                  country,
-                  userAgent,
-                  iphash: iphash,
-                  related: relation,
-                  group: group, // Group from the item
-                  user: votingUserNew.id,
-                  voteId: String(relatedId),
-                  votedAt: new Date()
-                }
-                
-                const voteLog = await this.createVotelog(payload)
-                if (voteLog) {
-                  const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...votingUserNew.votes, voteLog.id] : [voteLog.id]
-                  const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
-                  if (updatedUser && voted) {
-                    console.log('[VOTING] Voting finished successfuly' + (group ? ` for item in group: ${group}` : ' for ungrouped item'))
-                    return voted
-                  } else {
-                    console.log('[VOTING] Voting did not successfuly finished, error updating user')
-                  }
-                } else {
-                  console.log('[VOTING] VoteLog creation failed, aborting..')
-                }
-              } else {
-                console.log('[VOTING] Voting failed, aborting..')
-              }
-            } else {
-              console.log('[VOTING] New user creation failed, aborting..')
+  
+      try {
+        // Try to find the user by iphash
+        const votingUser = await this.findUser(iphash);
+  
+        const votes = relatedEntity.votes + 1;
+        const voted = await this.doVoting(uid, relatedEntity.id, votes);
+  
+        if (!voted) {
+          console.log('[VOTING] Voting failed, aborting..');
+          return;
+        }
+  
+        const payload = {
+          ip,
+          iphash,
+          related: relation,
+          group,
+          country,
+          userAgent,
+          voteId: String(relatedId),
+          votedAt: new Date()
+        };
+  
+        if (votingUser) {
+          payload.user = votingUser.id;
+  
+          if (!group) {
+            const votedBefore = checkForExistingId(votingUser.votes, relation);
+            if (votedBefore) {
+              throw new PluginError(403, `Already voted for ${relation}`);
             }
           }
-        } catch (e) {
-          throw new PluginError(400, e.message);
+  
+          const voteLog = await this.createVotelog(payload);
+          if (!voteLog) {
+            console.log('[VOTING] VoteLog creation failed, aborting..');
+            return;
+          }
+  
+          const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id];
+          const updatedUser = await this.updateUser(updatedVotes, votingUser.id);
+  
+          if (updatedUser) {
+            console.log('[VOTING] Voting finished successfully' + (group ? ` for item in group: ${group}` : ' for ungrouped item'));
+            return voted;
+          } else {
+            console.log('[VOTING] Error updating user with new vote');
+          }
+        } else {
+          // User not found, create new
+          const newUser = await this.createNewUser(ip, iphash);
+          if (!newUser) {
+            console.log('[VOTING] New user creation failed, aborting..');
+            return;
+          }
+  
+          payload.user = newUser.id;
+  
+          const voteLog = await this.createVotelog(payload);
+          if (!voteLog) {
+            console.log('[VOTING] VoteLog creation failed for new user, aborting..');
+            return;
+          }
+  
+          const updatedVotes = [voteLog.id];
+          const updatedUser = await this.updateUser(updatedVotes, newUser.id);
+  
+          if (updatedUser) {
+            console.log('[VOTING] Voting finished successfully' + (group ? ` for item in group: ${group}` : ' for ungrouped item'));
+            return voted;
+          } else {
+            console.log('[VOTING] Error updating new user with vote');
+          }
         }
+      } catch (e) {
+        throw new PluginError(400, e.message);
       }
-      throw new PluginError(400, 'No content received');
     }
+  
+    throw new PluginError(400, 'No content received');
   }
 });
