@@ -198,8 +198,8 @@ module.exports = ({ strapi }) => ({
     }
   },
 
-  // New helper function to check if user has voted in this group within time limit
-  async checkGroupVoteRestriction(iphash, relation, group) {
+  // Helper function to check if user has voted for any item in this group within time limit
+  async checkGroupVoteRestriction(iphash, group) {
     if (!group) {
       return false; // No group restriction if group is not provided
     }
@@ -208,11 +208,11 @@ module.exports = ({ strapi }) => ({
       // Get current date
       const now = new Date();
       
-      // Find all vote logs for this user, relation, and group that haven't expired
+      // Find all vote logs for this user and group that haven't expired
+      // Note: we're checking ANY item in the group, not a specific relation
       const voteLogs = await strapi.entityService.findMany('plugin::voting.votelog', {
         filters: {
           iphash: iphash,
-          related: relation,
           group: group,
           expiresAt: {
             $gt: now // Only get votes that haven't expired
@@ -246,9 +246,8 @@ module.exports = ({ strapi }) => ({
     const config = await this.pluginService().getConfig('googleRecaptcha');
     const [ uid, relatedId ] = await this.pluginService().parseRelationString(relation);
     
-    // Parse data
+    // Parse data (only for recaptcha token now, not for group)
     const dataJson = JSON.parse(data)
-    const group = dataJson.group || null; // Extract group from request data
     
     // Google Recaptcha
     const recaptchaEnabled = config[uid] || false
@@ -283,17 +282,22 @@ module.exports = ({ strapi }) => ({
         throw new PluginError(400, `Field "related" got incorrect format, use format like "api::<collection name>.<content type name>:<entity id>"`);
       }
       
-      // Find related entity by relation string
-      const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { fields: ['votes'] });
+      // Find related entity by relation string - NOW INCLUDING GROUP FIELD
+      const relatedEntity = await strapi.entityService.findOne(uid, relatedId, { 
+        fields: ['votes', 'group'] // Fetch group from the item itself
+      });
       if (!relatedEntity) {
         throw new PluginError(400, `Relation for field "related" does not exist. Check your payload please.`);
       }
       
-      // Check group vote restriction if group is provided
+      // Get group from the entity, not from user data
+      const group = relatedEntity.group || null;
+      
+      // Check group vote restriction if item has a group
       if (group) {
-        const hasVotedInGroup = await this.checkGroupVoteRestriction(iphash, relation, group);
+        const hasVotedInGroup = await this.checkGroupVoteRestriction(iphash, group);
         if (hasVotedInGroup) {
-          throw new PluginError(403, `Already voted for ${relation} in group ${group} within the time limit`);
+          throw new PluginError(403, `You have already voted for an item in group "${group}" within the time limit`);
         }
       }
       
@@ -304,14 +308,14 @@ module.exports = ({ strapi }) => ({
           const votingUser = await this.findUser(iphash)
           
           if (votingUser) {
-            // If no group is specified, check for any previous vote
-            // If group is specified, the check was already done above
+            // If no group is specified on the item, check for any previous vote on this specific item
             if (!group) {
               const votedBefore = checkForExistingId(votingUser.votes, relation)
               if (votedBefore) {
                 throw new PluginError(403, `Already voted for ${relation}`);
               }
             }
+            // If group is specified, the group check was already done above
             
             const votes = await relatedEntity.votes + 1
             const voted = await this.doVoting(uid, relatedEntity.id, votes)
@@ -321,7 +325,7 @@ module.exports = ({ strapi }) => ({
                 ip: ip,
                 iphash: iphash,
                 related: relation,
-                group: group, // Add group to votelog
+                group: group, // Group from the item
                 country,
                 userAgent,
                 user: votingUser.id,
@@ -334,7 +338,7 @@ module.exports = ({ strapi }) => ({
                 const updatedVotes = votingUser.votes && votingUser.votes.length > 0 ? [...votingUser.votes, voteLog.id] : [voteLog.id]
                 const updatedUser = await this.updateUser(updatedVotes, votingUser.id)
                 if (updatedUser && voted) {
-                  console.log('[VOTING] Voting finished successfuly' + (group ? ` for group: ${group}` : ''))
+                  console.log('[VOTING] Voting finished successfuly' + (group ? ` for item in group: ${group}` : ' for ungrouped item'))
                   return voted
                 } else {
                   console.log('[VOTING] Voting did not successfuly finished, error updating user')
@@ -363,7 +367,7 @@ module.exports = ({ strapi }) => ({
                   userAgent,
                   iphash: iphash,
                   related: relation,
-                  group: group, // Add group to votelog
+                  group: group, // Group from the item
                   user: votingUserNew.id,
                   voteId: String(relatedId),
                   votedAt: new Date()
@@ -374,7 +378,7 @@ module.exports = ({ strapi }) => ({
                   const updatedVotes = votingUserNew.votes && votingUserNew.votes.length > 0 ? [...votingUserNew.votes, voteLog.id] : [voteLog.id]
                   const updatedUser = await this.updateUser(updatedVotes, votingUserNew.id)
                   if (updatedUser && voted) {
-                    console.log('[VOTING] Voting finished successfuly' + (group ? ` for group: ${group}` : ''))
+                    console.log('[VOTING] Voting finished successfuly' + (group ? ` for item in group: ${group}` : ' for ungrouped item'))
                     return voted
                   } else {
                     console.log('[VOTING] Voting did not successfuly finished, error updating user')
