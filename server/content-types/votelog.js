@@ -38,6 +38,10 @@
       type: 'string',
       configurable: true
     },
+    group: {
+      type: 'string',
+      configurable: true
+    },
     votedAt: {
       type: 'datetime',
       configurable: true
