@@ -330,7 +330,7 @@ module.exports = ({ strapi }) => ({
               iphash, 
               group 
             })
-            .where('expiresAt', '>', now)
+            .where('expires_at', '>', now)
             .forUpdate()
             .first();
   
@@ -352,21 +352,12 @@ module.exports = ({ strapi }) => ({
           const newUserResult = await trx('voting_vote')
             .insert({
               ip,
-              iphash,
-              votes: JSON.stringify([])
+              iphash
             });
           
           userId = newUserResult[0];
-          votingUser = { id: userId, votes: [] };
         } else {
           userId = votingUser.id;
-          // Parse votes if stored as JSON string
-          if (typeof votingUser.votes === 'string') {
-            votingUser.votes = JSON.parse(votingUser.votes);
-          }
-          if (!Array.isArray(votingUser.votes)) {
-            votingUser.votes = [];
-          }
         }
   
         // 4. Create votelog entry FIRST (this is our atomic lock)
@@ -378,15 +369,18 @@ module.exports = ({ strapi }) => ({
           ip,
           iphash,
           related: relation,
-          group,
           country,
           user_agent: userAgent,
           vote_id: String(relatedId),
           voted_at: new Date(),
           published_at: new Date(),
-          expires_at: date,
-          user: userId
+          expires_at: date
         };
+  
+        // Only add group if it exists
+        if (group) {
+          voteLogData.group = group;
+        }
   
         const voteLogResult = await trx('voting_votelog')
           .insert(voteLogData);
@@ -394,7 +388,23 @@ module.exports = ({ strapi }) => ({
         const voteLogId = voteLogResult[0];
         console.log(`[VOTING] Created votelog ID: ${voteLogId}`);
   
-        // 5. Increment vote count on the related entity
+        // 5. Link votelog to user via voting_votelog_user_links
+        await trx('voting_votelog_user_links')
+          .insert({
+            votelog_id: voteLogId,
+            vote_id: userId
+          });
+        console.log(`[VOTING] Linked votelog ${voteLogId} to user ${userId}`);
+  
+        // 6. Link votelog to vote via voting_vote_votes_links
+        await trx('voting_vote_votes_links')
+          .insert({
+            vote_id: userId,
+            votelog_id: voteLogId
+          });
+        console.log(`[VOTING] Linked vote ${userId} to votelog ${voteLogId}`);
+  
+        // 7. Increment vote count on the related entity
         const newVoteCount = (relatedEntity.votes || 0) + 1;
         
         await trx(strapi.db.metadata.get(uid).tableName)
@@ -402,15 +412,6 @@ module.exports = ({ strapi }) => ({
           .update({ votes: newVoteCount });
   
         console.log(`[VOTING] Incremented votes to ${newVoteCount} for ${relation}`);
-  
-        // 6. Update user's votes array
-        const updatedVotes = [...votingUser.votes, voteLogId];
-        
-        await trx('voting_vote')
-          .where({ id: userId })
-          .update({ votes: JSON.stringify(updatedVotes) });
-  
-        console.log(`[VOTING] Updated user ${userId} votes array`);
   
         // Return the updated entity
         return {
@@ -431,7 +432,7 @@ module.exports = ({ strapi }) => ({
       }
       
       // Handle duplicate key errors (in case of race conditions)
-      if (e.code === 'ER_DUP_ENTRY' || e.code === '23505') {
+      if (e.code === 'ER_DUP_ENTRY' || e.code === '23505' || e.code === 'SQLITE_CONSTRAINT') {
         throw new PluginError(403, `Already voted for ${relation}`);
       }
       
