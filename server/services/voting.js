@@ -309,7 +309,7 @@ module.exports = ({ strapi }) => ({
         console.log(`[VOTING] Starting vote transaction for iphash: ${iphash}, relation: ${relation}`);
   
         // 1. Check if user has already voted for this specific item (with lock)
-        const existingVoteLog = await trx('voting_votelogs')
+        const existingVoteLog = await trx('voting_votelog')
           .where({ 
             iphash, 
             voteId: String(relatedId)
@@ -325,7 +325,7 @@ module.exports = ({ strapi }) => ({
         // 2. Check group vote restriction if applicable (with lock)
         if (hasGroupField && group) {
           const now = new Date();
-          const existingGroupVote = await trx('voting_votelogs')
+          const existingGroupVote = await trx('voting_votelog')
             .where({ 
               iphash, 
               group 
@@ -388,7 +388,7 @@ module.exports = ({ strapi }) => ({
           user: userId
         };
   
-        const voteLogResult = await trx('voting_votelogs')
+        const voteLogResult = await trx('voting_votelog')
           .insert(voteLogData);
   
         const voteLogId = voteLogResult[0];
