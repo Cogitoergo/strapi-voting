@@ -309,7 +309,7 @@ module.exports = ({ strapi }) => ({
         console.log(`[VOTING] Starting vote transaction for iphash: ${iphash}, relation: ${relation}`);
   
         // 1. Check if user has already voted for this specific item (with lock)
-        const existingVoteLog = await trx('plugin_voting_votelogs')
+        const existingVoteLog = await trx('voting_votelogs')
           .where({ 
             iphash, 
             voteId: String(relatedId)
@@ -325,7 +325,7 @@ module.exports = ({ strapi }) => ({
         // 2. Check group vote restriction if applicable (with lock)
         if (hasGroupField && group) {
           const now = new Date();
-          const existingGroupVote = await trx('plugin_voting_votelogs')
+          const existingGroupVote = await trx('voting_votelogs')
             .where({ 
               iphash, 
               group 
@@ -341,7 +341,7 @@ module.exports = ({ strapi }) => ({
         }
   
         // 3. Find or create user (with lock)
-        let votingUser = await trx('plugin_voting_votes')
+        let votingUser = await trx('voting_votes')
           .where({ iphash })
           .forUpdate()
           .first();
@@ -349,7 +349,7 @@ module.exports = ({ strapi }) => ({
         let userId;
         if (!votingUser) {
           console.log(`[VOTING] Creating new user for iphash: ${iphash}`);
-          const newUserResult = await trx('plugin_voting_votes')
+          const newUserResult = await trx('voting_votes')
             .insert({
               ip,
               iphash,
@@ -388,7 +388,7 @@ module.exports = ({ strapi }) => ({
           user: userId
         };
   
-        const voteLogResult = await trx('plugin_voting_votelogs')
+        const voteLogResult = await trx('voting_votelogs')
           .insert(voteLogData);
   
         const voteLogId = voteLogResult[0];
@@ -406,7 +406,7 @@ module.exports = ({ strapi }) => ({
         // 6. Update user's votes array
         const updatedVotes = [...votingUser.votes, voteLogId];
         
-        await trx('plugin_voting_votes')
+        await trx('voting_votes')
           .where({ id: userId })
           .update({ votes: JSON.stringify(updatedVotes) });
   
@@ -506,7 +506,7 @@ module.exports = ({ strapi }) => ({
   //       console.log(`[VOTING] Starting vote transaction for iphash: ${iphash}, relation: ${relation}`);
   
   //       // 1. Check if user has already voted for this specific item (with lock)
-  //       const existingVoteLog = await strapi.db.connection('plugin_voting_votelogs')
+  //       const existingVoteLog = await strapi.db.connection('voting_votelogs')
   //         .where({ 
   //           iphash, 
   //           voteId: String(relatedId)
@@ -523,7 +523,7 @@ module.exports = ({ strapi }) => ({
   //       // 2. Check group vote restriction if applicable (with lock)
   //       if (hasGroupField && group) {
   //         const now = new Date();
-  //         const existingGroupVote = await strapi.db.connection('plugin_voting_votelogs')
+  //         const existingGroupVote = await strapi.db.connection('voting_votelogs')
   //           .where({ 
   //             iphash, 
   //             group 
@@ -540,7 +540,7 @@ module.exports = ({ strapi }) => ({
   //       }
   
   //       // 3. Find or create user (with lock)
-  //       let votingUser = await strapi.db.connection('plugin_voting_votes')
+  //       let votingUser = await strapi.db.connection('voting_votes')
   //         .where({ iphash })
   //         .transacting(trx)
   //         .forUpdate()
@@ -549,7 +549,7 @@ module.exports = ({ strapi }) => ({
   //       let userId;
   //       if (!votingUser) {
   //         console.log(`[VOTING] Creating new user for iphash: ${iphash}`);
-  //         const newUserResult = await strapi.db.connection('plugin_voting_votes')
+  //         const newUserResult = await strapi.db.connection('voting_votes')
   //           .insert({
   //             ip,
   //             iphash,
@@ -589,7 +589,7 @@ module.exports = ({ strapi }) => ({
   //         user: userId
   //       };
   
-  //       const voteLogResult = await strapi.db.connection('plugin_voting_votelogs')
+  //       const voteLogResult = await strapi.db.connection('voting_votelogs')
   //         .insert(voteLogData)
   //         .transacting(trx);
   
@@ -609,7 +609,7 @@ module.exports = ({ strapi }) => ({
   //       // 6. Update user's votes array
   //       const updatedVotes = [...votingUser.votes, voteLogId];
         
-  //       await strapi.db.connection('plugin_voting_votes')
+  //       await strapi.db.connection('voting_votes')
   //         .where({ id: userId })
   //         .update({ votes: JSON.stringify(updatedVotes) })
   //         .transacting(trx);
