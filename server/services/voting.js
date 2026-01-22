@@ -312,7 +312,7 @@ module.exports = ({ strapi }) => ({
         const existingVoteLog = await trx('voting_votelog')
           .where({ 
             iphash, 
-            voteId: String(relatedId)
+            vote_id: String(relatedId)
           })
           .forUpdate()
           .first();
@@ -380,11 +380,11 @@ module.exports = ({ strapi }) => ({
           related: relation,
           group,
           country,
-          userAgent,
-          voteId: String(relatedId),
-          votedAt: new Date(),
-          publishedAt: new Date(),
-          expiresAt: date,
+          user_agent: userAgent,
+          vote_id: String(relatedId),
+          voted_at: new Date(),
+          published_at: new Date(),
+          expires_at: date,
           user: userId
         };
   
