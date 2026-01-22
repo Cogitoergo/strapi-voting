@@ -341,7 +341,7 @@ module.exports = ({ strapi }) => ({
         }
   
         // 3. Find or create user (with lock)
-        let votingUser = await trx('voting_votes')
+        let votingUser = await trx('voting_vote')
           .where({ iphash })
           .forUpdate()
           .first();
@@ -349,7 +349,7 @@ module.exports = ({ strapi }) => ({
         let userId;
         if (!votingUser) {
           console.log(`[VOTING] Creating new user for iphash: ${iphash}`);
-          const newUserResult = await trx('voting_votes')
+          const newUserResult = await trx('voting_vote')
             .insert({
               ip,
               iphash,
@@ -406,7 +406,7 @@ module.exports = ({ strapi }) => ({
         // 6. Update user's votes array
         const updatedVotes = [...votingUser.votes, voteLogId];
         
-        await trx('voting_votes')
+        await trx('voting_vote')
           .where({ id: userId })
           .update({ votes: JSON.stringify(updatedVotes) });
   
