@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from 'react-query';
 // Api
 import { fetchContentTypes } from '../../utils/api';
@@ -12,7 +12,7 @@ import {
 	LoadingIndicatorPage,
   useNotification
 } from '@strapi/helper-plugin';
-import { isEqual, first } from 'lodash';
+import { isEqual, first, isEmpty } from 'lodash';
 import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@strapi/design-system/Accordion';
 import { Main } from '@strapi/design-system/Main';
 import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
@@ -34,7 +34,7 @@ const Settings = () => {
   const [restoreConfirmationVisible, setRestoreConfirmationVisible] = useState(false);
 	const [restartRequired, setRestartRequired] = useState(false);
   const [contentTypeExpanded, setContentTypeExpanded] = useState(undefined);
-  const [availableFields, setAvailableFields] = useState([]);
+  const [availableFieldsMap, setAvailableFieldsMap] = useState({});
 
   const toggleNotification = useNotification();
   const { lockApp, unlockApp } = useOverlayBlocker();
@@ -113,7 +113,7 @@ const Settings = () => {
   const allCollections = !isLoading && allCollectionsData && allCollectionsData.collectionTypes
 		.filter(({ uid }) => first(uid.split(regexUID).filter(s => s && s.length > 0)) === 'api');
 	
-  const enabledCollections = configData.enabledCollections && !_.isEmpty(configData.enabledCollections) ? configData.enabledCollections
+  const enabledCollections = configData.enabledCollections && !isEmpty(configData.enabledCollections) ? configData.enabledCollections
     .map(uid => allCollections.find(_ => _.uid === uid) ? uid : undefined)
     .filter(_ => _) : []
 
@@ -159,34 +159,38 @@ const Settings = () => {
 
 	const handleRestartDiscard = () => setRestartRequired(false);
 
-  const handleSetContentTypeExpanded = (contentType) => {
-    setContentTypeExpanded(contentTypeExpanded && contentType === contentTypeExpanded ? undefined : contentType);
-    handleSetAvailableFields(getCollectionField(contentType, 'attributes'));
+  const getCollectionField = (collection, field) => {
+    const contentType = allCollections.find(_ => _.uid === collection);
+    if (!contentType) return '';
+    return contentType[field] || '';
   };
 
-  const getCollectionField = (collection, field) => {
-    const contentType = allCollections.filter(_ => _.uid === collection).pop()
-    return contentType[field] || ''
-  }
-  
-  const handleSetAvailableFields = (attributes) => {
+  const getAvailableFieldsForCollection = (collection) => {
+    const attributes = getCollectionField(collection, 'attributes');
+    if (!attributes || typeof attributes !== 'object') return [];
     const attributeKeys = Object.keys(attributes);
-    if (_.isEmpty(attributeKeys)) {
-      setAvailableFields([]);
-    };
-    setAvailableFields(attributeKeys
-      .map((key) => {
-        const y = attributes[key];
-        y.name = key;
-        return y;
-      })
-      .filter(item => item.type === 'integer'));
+    if (isEmpty(attributeKeys)) return [];
+    return attributeKeys
+      .map((key) => ({
+        ...attributes[key],
+        name: key,
+      }))
+      .filter(item => item.type === 'integer');
+  };
+
+  const handleSetContentTypeExpanded = (contentType) => {
+    const isCollapsing = contentTypeExpanded && contentType === contentTypeExpanded;
+    setContentTypeExpanded(isCollapsing ? undefined : contentType);
+    if (!isCollapsing) {
+      const fields = getAvailableFieldsForCollection(contentType);
+      setAvailableFieldsMap(prev => ({ ...prev, [contentType]: fields }));
+    }
   };
 
   const changeEntryLabelFor = (uid, current, value) => {
 		const temp = {
       ...current,
-		  [uid]: value && !_.isEmpty(value) ? value : undefined,
+		  [uid]: value && !isEmpty(value) ? value : undefined,
     };
     return temp;
 	};
@@ -208,13 +212,13 @@ const Settings = () => {
 	};
 
   const changeVotingPeriodFor = (uid, current, value, type) => {
-    const dateObj = current[uid] || {};
+    const dateObj = { ...(current[uid] || {}) };
     const date = value;
     if (type === 'start') {
       dateObj.start = date;
     } else if (type === 'end') {
       dateObj.end = date;
-    };
+    }
 		const temp = {
       ...current,
 		  [uid]: dateObj,
@@ -287,7 +291,7 @@ const Settings = () => {
                         {
                           allCollectionsData &&
                           allCollectionsData.collectionTypes &&
-                          !_.isEmpty(allCollectionsData.collectionTypes) ? (
+                          !isEmpty(allCollectionsData.collectionTypes) ? (
                             allCollectionsData.collectionTypes.map((item) => (
                               <Option
                                 key={item.uid}
@@ -296,18 +300,19 @@ const Settings = () => {
                                 {item.globalId}
                               </Option>
                             ))
-                          ) : ''
+                          ) : null
                         }
                       </Select>
                     </GridItem>
-                    { values.enabledCollections && !_.isEmpty(values.enabledCollections) && (
+                    { values.enabledCollections && !isEmpty(values.enabledCollections) && (
                     <GridItem col={12}>
                       <AccordionGroup
                         label="Custom settings per content type"
                         labelAction={<Tooltip description="Configure each collection types settings like voting field and voting duration."><Information aria-hidden={true} /></Tooltip>}>
                           {
                             values.enabledCollections.map((collection) => {
-                            const key = `collectionSettings-${collection}`
+                            const key = `collectionSettings-${collection}`;
+                            const fieldsForCollection = availableFieldsMap[collection] || [];
                             return (
                               <Accordion
                                 expanded={contentTypeExpanded && contentTypeExpanded === collection}
@@ -358,7 +363,7 @@ const Settings = () => {
                                       <Grid gap={4}>
                                         <GridItem col={4}>
                                           <Select
-                                            id="enabledFields-select"
+                                            id={`enabledFields-select-${collection}`}
                                             clearLabel="Clear selected field."
                                             value={values.entryLabel && values.entryLabel[collection] || []}
                                             onChange={(value) => setFieldValue('entryLabel', changeEntryLabelFor(collection, values.entryLabel, value))}
@@ -370,10 +375,8 @@ const Settings = () => {
                                             disabled={restartRequired}
                                           >
                                             {
-                                              availableFields &&
-                                              !_.isEmpty(availableFields) ? (
-                                                availableFields
-                                                  .map((item) => (
+                                              fieldsForCollection.length > 0 ? (
+                                                fieldsForCollection.map((item) => (
                                                     <Option
                                                       key={item.name}
                                                       value={item.name}
@@ -381,7 +384,7 @@ const Settings = () => {
                                                       {item.name}
                                                     </Option>
                                                   ))
-                                              ) : ''
+                                              ) : null
                                             }
                                           </Select>
                                         </GridItem>
@@ -424,7 +427,7 @@ const Settings = () => {
                     <Typography variant="delta" as="h2">
                       Restore default settings
                     </Typography>
-                    <Typography variant="pi"as="h4">
+                    <Typography variant="pi" as="h4">
                       Discarding all of applied settings and getting back to plugin default ones. Use reasonably.
                     </Typography>
                   </Stack>
